@@ -7,11 +7,12 @@ import svgDetailPaths from "../imports/LowonganDetail/svg-25afbh8kme";
 import svgEditPaths from "../imports/EditLowongan/svg-i1uycnsjer";
 import svgCandidatePaths from "../imports/Frame626639/svg-7zccrrmevh";
 import imgCandidate from "../imports/Frame626639/fb0866f26f42d40c2ae9ca60a1f6f85a45c71cad.png";
+import imgInvitedFrame from "../imports/InvitedBadge/avatar-framed.png";
 import imgAvatar from "../imports/LowonganPageJobList/c6659080845fc664635625ec6b1f2bd6fc3a8f49.png";
 import Lottie from "lottie-react";
 import blueLoadingAnim from "../imports/blue_loading__1_.json";
 import { Eye, EyeOff, ChevronDown, Paperclip, Info, Check, Upload, X, Search, ListFilter, MoreVertical, Pencil, Copy, Trash2, Calendar, ChevronLeft, ChevronRight, ArrowLeft, MapPin, Briefcase, Video, Download, ArrowRightLeft, User, LogOut, Building2, Settings, Italic, Underline, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Link2, Clock } from "lucide-react";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameDay, isWithinInterval, addMonths, subMonths, isBefore } from "date-fns";
+import { format, parse, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameDay, isWithinInterval, addMonths, subMonths, isBefore } from "date-fns";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -1143,16 +1144,19 @@ function useCountUp(target: number, duration = 1400) {
 }
 
 const kpiCards = [
-  { label: "Lowongan Aktif", value: 24, suffix: "" },
+  { label: "Lowongan Aktif", value: 24, suffix: "", statusFilter: "Diterbitkan" },
   { label: "Lowongan Belum Diproses", value: 127, suffix: "" },
   { label: "Total Pelamar", value: 1482, suffix: "" },
   { label: "Waktu Hiring Rata-rata", value: 18, suffix: " Hari" },
 ];
 
-function KpiCard({ label, value, suffix }: { label: string; value: number; suffix: string }) {
+function KpiCard({ label, value, suffix, onClick }: { label: string; value: number; suffix: string; onClick?: () => void }) {
   const count = useCountUp(value);
   return (
-    <div className="bg-white flex-1 min-w-0 rounded-2xl border border-[#e6e6e7] shadow-[0px_4px_6px_rgba(0,0,0,0.02)] p-6 flex flex-col gap-3">
+    <div
+      onClick={onClick}
+      className={`bg-white flex-1 min-w-0 rounded-2xl border border-[#e6e6e7] shadow-[0px_4px_6px_rgba(0,0,0,0.02)] p-6 flex flex-col gap-3 transition-colors ${onClick ? "cursor-pointer hover:border-[#0052ff]" : ""}`}
+    >
       <p className="text-[#777980] text-sm" style={{ fontFamily: "DM Sans, sans-serif" }}>{label}</p>
       <p className="text-[#0052ff] text-[21px] font-bold leading-[26px]" style={{ fontFamily: "DM Sans, sans-serif" }}>
         {count.toLocaleString("id-ID")}{suffix}
@@ -1215,9 +1219,9 @@ const popularJobs = [
   { rank: 5, title: "Product Manager", date: "12/01/2026", pct: 0.54, count: 8, closes: "9 hari lagi" },
 ];
 
-function PopularJobRow({ job, mounted }: { job: typeof popularJobs[0]; mounted: boolean }) {
+function PopularJobRow({ job, mounted, onClick }: { job: typeof popularJobs[0]; mounted: boolean; onClick?: () => void }) {
   return (
-    <div className="flex gap-3 items-center py-1.5 w-full">
+    <div onClick={onClick} className={`flex gap-3 items-center py-1.5 w-full rounded-lg transition-colors ${onClick ? "cursor-pointer hover:bg-[#f9f9f9]" : ""}`}>
       <span className="text-[#6b7280] text-[13px] w-6 shrink-0" style={{ fontFamily: "DM Sans, sans-serif" }}>{job.rank}</span>
       <div className="flex flex-col gap-1 shrink-0 w-[130px]">
         <p className="text-sm font-medium text-black" style={{ fontFamily: "DM Sans, sans-serif" }}>{job.title}</p>
@@ -1250,10 +1254,10 @@ const statusBadge: Record<string, { bg: string; text: string; label: string }> =
 };
 
 const recentApplicants = [
-  { name: "Ananda Putri", role: "Manajer Produk Senior", date: "12 Okt 2023", status: "Penyaringan" },
-  { name: "Rizky Pratama", role: "Insinyur Backend", date: "11 Okt 2023", status: "Wawancara" },
-  { name: "Dewi Lestari", role: "Direktur Kreatif", date: "10 Okt 2023", status: "Ditawarkan" },
-  { name: "Bambang Wijaya", role: "Pengembang Full Stack", date: "09 Okt 2023", status: "Ditolak" },
+  { name: "Ananda Putri", role: "Manajer Produk Senior", date: "12 Okt 2023", status: "Penyaringan", jobId: "PJ-01", candidateId: "C2" },
+  { name: "Rizky Pratama", role: "Insinyur Backend", date: "11 Okt 2023", status: "Wawancara", jobId: "PJ-01", candidateId: "C3" },
+  { name: "Dewi Lestari", role: "Direktur Kreatif", date: "10 Okt 2023", status: "Ditawarkan", jobId: "PJ-01", candidateId: "C4" },
+  { name: "Bambang Wijaya", role: "Pengembang Full Stack", date: "09 Okt 2023", status: "Ditolak", jobId: "PJ-01", candidateId: "C5" },
 ];
 
 const interviews = [
@@ -1354,7 +1358,7 @@ function DashboardSidebar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [candidateOpen, setCandidateOpen] = useState(
-    pathname === "/pipeline" || pathname === "/list-kandidat"
+    pathname.startsWith("/pipeline") || pathname === "/list-kandidat"
   );
 
   const SidebarIcon = ({ d }: { d: string }) => (
@@ -1368,8 +1372,8 @@ function DashboardSidebar() {
   const usersD     = "M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75";
   const chartD     = "M18 20V10M12 20V4M6 20v-6";
 
-  const navBtn = (path: string, label: string, d: string, indent = false) => {
-    const isActive = pathname === path;
+  const navBtn = (path: string, label: string, d: string, indent = false, activeTest?: (p: string) => boolean) => {
+    const isActive = activeTest ? activeTest(pathname) : pathname === path;
     return (
       <button
         key={path}
@@ -1390,7 +1394,7 @@ function DashboardSidebar() {
     );
   };
 
-  const candidateActive = pathname === "/pipeline" || pathname === "/list-kandidat";
+  const candidateActive = pathname.startsWith("/pipeline") || pathname === "/list-kandidat";
 
   return (
     <div className="bg-white w-[260px] shrink-0 h-full flex flex-col gap-8 p-6 border-r border-[#e6e6e7]">
@@ -1413,7 +1417,7 @@ function DashboardSidebar() {
             <span className={candidateActive ? "text-[#0052ff]" : "text-[#64748b]"}>
               <SidebarIcon d={usersD} />
             </span>
-            <span className="flex-1 text-left">Manajemen Kandidat</span>
+            <span className="flex-1 text-left whitespace-nowrap">Manajemen Kandidat</span>
             <svg
               width="14" height="14" viewBox="0 0 14 14" fill="none"
               className={`transition-transform duration-200 ${candidateOpen ? "rotate-180" : ""}`}
@@ -1423,8 +1427,8 @@ function DashboardSidebar() {
           </button>
           {candidateOpen && (
             <div className="flex flex-col">
-              {navBtn("/pipeline", "Pipeline", usersD, true)}
-              {navBtn("/list-kandidat", "List Kandidat", usersD, true)}
+              {navBtn("/pipeline", "Pipeline", usersD, true, (p) => p.startsWith("/pipeline"))}
+              {navBtn("/list-kandidat", "Cari Kandidat", usersD, true)}
             </div>
           )}
         </div>
@@ -1473,7 +1477,13 @@ function DashboardContent() {
 
         {/* KPI Cards */}
         <div className="flex gap-6 px-10">
-          {kpiCards.map((c) => <KpiCard key={c.label} {...c} />)}
+          {kpiCards.map((c) => (
+            <KpiCard
+              key={c.label}
+              {...c}
+              onClick={c.statusFilter ? () => navigate("/lowongan", { state: { statusFilter: c.statusFilter } }) : undefined}
+            />
+          ))}
         </div>
 
         {/* Charts row */}
@@ -1485,7 +1495,7 @@ function DashboardContent() {
                 <p className="text-[#4c4f59] text-base font-bold" style={{ fontFamily: "DM Sans, sans-serif" }}>Status Kandidat</p>
                 <p className="text-[#777980] text-sm" style={{ fontFamily: "DM Sans, sans-serif" }}>Kondisi terkini, semua lowongan</p>
               </div>
-              <span className="text-[#0052ff] text-sm font-semibold cursor-pointer" style={{ fontFamily: "Inter, sans-serif" }}>Lihat lebih lengkap</span>
+              <span onClick={() => navigate("/pipeline")} className="text-[#0052ff] text-sm font-semibold cursor-pointer hover:underline" style={{ fontFamily: "Inter, sans-serif" }}>Lihat lebih lengkap</span>
             </div>
             <div className="w-full h-px bg-[#e5e7eb]" />
             <FunnelChart />
@@ -1499,12 +1509,19 @@ function DashboardContent() {
             </div>
             <div className="w-full h-px bg-[#e5e7eb]" />
             <div className="flex flex-col gap-1 flex-1 overflow-hidden">
-              {popularJobs.map((job, i) => (
-                <div key={job.rank}>
-                  <PopularJobRow job={job} mounted={barMounted} />
-                  {i < popularJobs.length - 1 && <div className="w-full h-px bg-[#e5e7eb]" />}
-                </div>
-              ))}
+              {popularJobs.map((job, i) => {
+                const pipelineJob = PIPELINE_JOBS.find(pj => pj.nama === job.title);
+                return (
+                  <div key={job.rank}>
+                    <PopularJobRow
+                      job={job}
+                      mounted={barMounted}
+                      onClick={() => navigate(pipelineJob ? `/pipeline/${pipelineJob.id}` : "/pipeline")}
+                    />
+                    {i < popularJobs.length - 1 && <div className="w-full h-px bg-[#e5e7eb]" />}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -1515,7 +1532,7 @@ function DashboardContent() {
           <div className="bg-white flex-1 min-w-0 rounded-2xl border border-[#e6e6e7] shadow-[0px_4px_6px_rgba(0,0,0,0.02)] p-6 flex flex-col gap-6">
             <div className="flex items-center justify-between">
               <p className="text-[#383b46] text-base font-bold" style={{ fontFamily: "DM Sans, sans-serif" }}>Pelamar Terbaru</p>
-              <span className="text-[#0052ff] text-sm font-semibold cursor-pointer" style={{ fontFamily: "Inter, sans-serif" }}>Lihat Semua</span>
+              <span onClick={() => navigate("/pipeline")} className="text-[#0052ff] text-sm font-semibold cursor-pointer hover:underline" style={{ fontFamily: "Inter, sans-serif" }}>Lihat Semua</span>
             </div>
             {/* Table header */}
             <div className="flex items-center py-3 border-b border-[#e6e6e7]">
@@ -1527,7 +1544,11 @@ function DashboardContent() {
             {recentApplicants.map((a) => {
               const badge = statusBadge[a.status];
               return (
-                <div key={a.name} className="flex items-center py-4 border-b border-[#e6e6e7]">
+                <div
+                  key={a.name}
+                  onClick={() => navigate(`/pipeline/${a.jobId}`, { state: { openCandidateId: a.candidateId } })}
+                  className="flex items-center py-4 border-b border-[#e6e6e7] cursor-pointer hover:bg-[#f9f9f9] transition-colors rounded-lg"
+                >
                   <div className="flex items-center gap-3 w-44">
                     <div className="w-10 h-10 rounded-lg bg-[#ebf2ff] flex items-center justify-center text-[#0052ff] font-bold text-sm shrink-0">
                       {a.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
@@ -1850,6 +1871,7 @@ function FilterSelectField({
 // ─── FilterModal ──────────────────────────────────────────────────────────────
 
 interface FilterValues {
+  status: string[];
   kategori: string[];
   lokasi: string[];
   modeKerja: string[];
@@ -1859,7 +1881,7 @@ interface FilterValues {
 }
 
 const EMPTY_FILTERS: FilterValues = {
-  kategori: [], lokasi: [], modeKerja: [], dibuatOleh: [],
+  status: [], kategori: [], lokasi: [], modeKerja: [], dibuatOleh: [],
   dibuatRange: { start: null, end: null }, tutupRange: { start: null, end: null },
 };
 
@@ -1870,6 +1892,7 @@ function FilterModal({ onClose, onSave, initial }: { onClose: () => void; onSave
   const [dibuatHovered, setDibuatHovered] = useState<Date | null>(null);
   const [tutupHovered, setTutupHovered] = useState<Date | null>(null);
 
+  const [status, setStatus] = useState<string[]>(initial.status);
   const [kategori, setKategori] = useState<string[]>(initial.kategori);
   const [lokasi, setLokasi] = useState<string[]>(initial.lokasi);
   const [modeKerja, setModeKerja] = useState<string[]>(initial.modeKerja);
@@ -1987,6 +2010,18 @@ function FilterModal({ onClose, onSave, initial }: { onClose: () => void; onSave
           )}
         </div>
 
+        {/* Status */}
+        <div className="flex gap-4 w-full">
+          <FilterSelectField
+            label="Status"
+            values={status}
+            options={["Diterbitkan", "Tutup", "Draf"]}
+            open={openDropdown === "status"}
+            onToggle={() => toggleDropdown("status")}
+            onToggleOption={(v) => toggleOption(setStatus, v)}
+          />
+        </div>
+
         {/* Kategori + Lokasi */}
         <div className="flex gap-4 w-full">
           <FilterSelectField
@@ -2037,7 +2072,7 @@ function FilterModal({ onClose, onSave, initial }: { onClose: () => void; onSave
             Kembali
           </button>
           <button
-            onClick={() => { onSave({ kategori, lokasi, modeKerja, dibuatOleh, dibuatRange, tutupRange }); onClose(); }}
+            onClick={() => { onSave({ status, kategori, lokasi, modeKerja, dibuatOleh, dibuatRange, tutupRange }); onClose(); }}
             className="bg-[#0052ff] h-10 px-5 rounded-full text-white font-bold text-base w-[121px] hover:bg-[#0041cc] transition-colors"
             style={{ fontFamily: "DM Sans, sans-serif" }}
           >
@@ -2054,7 +2089,10 @@ function LowonganContent() {
   const location = useLocation();
   const [search, setSearch] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
-  const [activeFilters, setActiveFilters] = useState<FilterValues>(EMPTY_FILTERS);
+  const [activeFilters, setActiveFilters] = useState<FilterValues>(() => {
+    const incomingStatus = (location.state as { statusFilter?: string } | null)?.statusFilter;
+    return incomingStatus ? { ...EMPTY_FILTERS, status: [incomingStatus] } : EMPTY_FILTERS;
+  });
   const filterRef = useRef<HTMLDivElement>(null);
 
   // Toast from navigation state
@@ -2080,6 +2118,7 @@ function LowonganContent() {
 
   // One chip per selected value, not per field
   const activeChips: { fieldKey: keyof FilterValues; label: string; value: string }[] = [
+    ...activeFilters.status.map((v) => ({ fieldKey: "status" as const, label: "Status", value: v })),
     ...activeFilters.kategori.map((v) => ({ fieldKey: "kategori" as const, label: "Kategori Pekerjaan", value: v })),
     ...activeFilters.lokasi.map((v) => ({ fieldKey: "lokasi" as const, label: "Lokasi", value: v })),
     ...activeFilters.modeKerja.map((v) => ({ fieldKey: "modeKerja" as const, label: "Mode Kerja", value: v })),
@@ -2096,10 +2135,11 @@ function LowonganContent() {
 
   const filtered = jobRows.filter((j) => {
     const matchSearch = j.nama.toLowerCase().includes(search.toLowerCase()) || j.id.toLowerCase().includes(search.toLowerCase());
+    const matchStatus = activeFilters.status.length === 0 || activeFilters.status.includes(j.status);
     const matchKategori = activeFilters.kategori.length === 0 || activeFilters.kategori.includes(j.kategori);
     const matchLokasi = activeFilters.lokasi.length === 0 || activeFilters.lokasi.includes(j.lokasi);
     const matchMode = activeFilters.modeKerja.length === 0 || activeFilters.modeKerja.includes(j.setting);
-    return matchSearch && matchKategori && matchLokasi && matchMode;
+    return matchSearch && matchStatus && matchKategori && matchLokasi && matchMode;
   });
 
   return (
@@ -3661,6 +3701,14 @@ function PostJobContent() {
 const PIPELINE_STAGES = ["Melamar", "Penyaringan", "Wawancara", "Ditawarkan", "Diterima", "Ditolak"] as const;
 type PipelineStage = typeof PIPELINE_STAGES[number];
 
+const PIPELINE_SUMMARY_STAGES: { stage: PipelineStage; bg: string }[] = [
+  { stage: "Melamar", bg: "bg-[rgba(0,82,255,0.1)]" },
+  { stage: "Penyaringan", bg: "bg-[rgba(14,165,233,0.1)]" },
+  { stage: "Wawancara", bg: "bg-[rgba(245,158,11,0.1)]" },
+  { stage: "Ditawarkan", bg: "bg-[rgba(139,92,246,0.1)]" },
+  { stage: "Diterima", bg: "bg-[rgba(16,185,129,0.1)]" },
+];
+
 interface PipelineJob {
   id: string; nama: string; status: "Diterbitkan" | "Tutup";
   lokasi: string; tipe: string; kategori: string;
@@ -3670,7 +3718,7 @@ interface PipelineJob {
 interface Candidate {
   id: string; name: string; role: string; stage: PipelineStage; appliedDate: string;
   rating?: number; interviewSchedule?: string; createdBy?: string;
-  interviewDuration?: number; interviewNote?: string;
+  interviewDuration?: number; interviewNote?: string; isInvited?: boolean;
 }
 
 const PIPELINE_JOBS: PipelineJob[] = [
@@ -3682,30 +3730,30 @@ const PIPELINE_JOBS: PipelineJob[] = [
 
 const CANDIDATES_BY_JOB: Record<string, Candidate[]> = {
   "PJ-01": [
-    { id: "C1", name: "Budi Santoso",   role: "Senior Software Engineer", stage: "Melamar",     appliedDate: "12 Jun 2025", rating: 4.2 },
+    { id: "C1", name: "Budi Santoso",   role: "Senior Software Engineer", stage: "Melamar",     appliedDate: "12 Jun 2025", rating: 4.2, isInvited: true },
     { id: "C2", name: "Ananda Putri",   role: "Backend Developer",        stage: "Melamar",     appliedDate: "13 Jun 2025", rating: 4.0 },
     { id: "C3", name: "Rizky Pratama",  role: "Software Engineer",        stage: "Penyaringan", appliedDate: "10 Jun 2025", rating: 4.5 },
     { id: "C4", name: "Dewi Lestari",   role: "Full Stack Developer",     stage: "Wawancara",   appliedDate: "8 Jun 2025",  rating: 4.7, interviewSchedule: "10 Jul · 14:00" },
-    { id: "C18", name: "Fajar Nugraha", role: "Backend Engineer",        stage: "Wawancara",   appliedDate: "9 Jun 2025",  rating: 4.3 },
+    { id: "C18", name: "Fajar Nugraha", role: "Backend Engineer",        stage: "Wawancara",   appliedDate: "9 Jun 2025",  rating: 4.3, isInvited: true },
     { id: "C5", name: "Bambang Wijaya", role: "Backend Specialist",       stage: "Ditawarkan",  appliedDate: "5 Jun 2025",  rating: 4.8 },
-    { id: "C13", name: "Farhan Maulana", role: "Backend Engineer",       stage: "Diterima",    appliedDate: "1 Jun 2025",  rating: 4.9 },
+    { id: "C13", name: "Farhan Maulana", role: "Backend Engineer",       stage: "Diterima",    appliedDate: "1 Jun 2025",  rating: 4.9, isInvited: true },
     { id: "C14", name: "Siti Nurhaliza", role: "Backend Engineer",       stage: "Ditolak",     appliedDate: "3 Jun 2025",  rating: 3.2 },
   ],
   "PJ-02": [
     { id: "C6", name: "Sari Indah",     role: "UI/UX Designer",           stage: "Melamar",     appliedDate: "14 Jun 2025", rating: 4.1 },
-    { id: "C7", name: "Eko Prasetyo",   role: "Product Designer",         stage: "Penyaringan", appliedDate: "11 Jun 2025", rating: 4.3 },
+    { id: "C7", name: "Eko Prasetyo",   role: "Product Designer",         stage: "Penyaringan", appliedDate: "11 Jun 2025", rating: 4.3, isInvited: true },
     { id: "C8", name: "Fitri Wahyuni",  role: "Senior UX Researcher",     stage: "Wawancara",   appliedDate: "9 Jun 2025",  rating: 4.6, interviewSchedule: "12 Jul · 10:00" },
     { id: "C19", name: "Putri Ayuningtyas", role: "Product Designer",    stage: "Wawancara",   appliedDate: "10 Jun 2025", rating: 4.2 },
     { id: "C15", name: "Galih Pratomo", role: "Product Designer",        stage: "Ditolak",     appliedDate: "2 Jun 2025",  rating: 3.5 },
   ],
   "PJ-03": [
-    { id: "C9",  name: "Hendra Kusuma",  role: "DevOps Engineer",          stage: "Melamar",     appliedDate: "15 Jun 2025", rating: 3.9 },
+    { id: "C9",  name: "Hendra Kusuma",  role: "DevOps Engineer",          stage: "Melamar",     appliedDate: "15 Jun 2025", rating: 3.9, isInvited: true },
     { id: "C10", name: "Maya Puspita",   role: "Infrastructure Engineer",  stage: "Penyaringan", appliedDate: "12 Jun 2025", rating: 4.1 },
     { id: "C16", name: "Yusuf Ramadhan", role: "DevOps Engineer",         stage: "Ditolak",     appliedDate: "4 Jun 2025",  rating: 3.0 },
   ],
   "PJ-04": [
     { id: "C11", name: "Andi Saputra",   role: "HR Specialist",            stage: "Melamar",     appliedDate: "16 Jun 2025", rating: 4.0 },
-    { id: "C12", name: "Rina Kartika",   role: "HR Generalist",            stage: "Penyaringan", appliedDate: "13 Jun 2025", rating: 4.4 },
+    { id: "C12", name: "Rina Kartika",   role: "HR Generalist",            stage: "Penyaringan", appliedDate: "13 Jun 2025", rating: 4.4, isInvited: true },
     { id: "C17", name: "Melati Sari",    role: "HR Specialist",            stage: "Ditolak",     appliedDate: "6 Jun 2025",  rating: 3.3 },
   ],
 };
@@ -3791,7 +3839,7 @@ function KanbanCard({ candidate, stage, onOpen, onScheduleClick, selected, isAct
       <div className={`flex flex-col gap-[5px] w-full ${stage === "Wawancara" ? "border-b border-[#e6e6e7] pb-2" : ""}`}>
         <div className="flex items-start justify-between w-full gap-2 pr-[22px]">
           <div className="flex flex-1 min-w-0 items-center gap-2.5">
-            <img src={imgCandidate} alt="" className="size-5 rounded-full object-cover shrink-0" />
+            <img src={imgCandidate} alt="" className={`size-5 rounded-full object-cover shrink-0 ${candidate.isInvited ? "border-2 border-[#0052ff]" : ""}`} />
             <p className={`text-[14px] font-semibold truncate ${isRejected ? "text-[#777980]" : "text-[#0f172a]"}`} style={{ fontFamily: "DM Sans, sans-serif" }}>{candidate.name}</p>
           </div>
           <WhatsAppIcon />
@@ -4199,7 +4247,7 @@ function CandidateProfileModal({ candidate, onClose, onScheduleClick, onStageCha
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-6" onClick={onClose}>
-      <div className="bg-[#f9f9f9] rounded-xl w-full max-w-[900px] max-h-[90vh] flex flex-col overflow-hidden"
+      <div className="bg-[#f9f9f9] rounded-xl w-full max-w-[1100px] max-h-[90vh] flex flex-col overflow-hidden"
         onClick={e => e.stopPropagation()}>
 
         {/* Modal scroll area */}
@@ -4215,7 +4263,17 @@ function CandidateProfileModal({ candidate, onClose, onScheduleClick, onStageCha
 
           {/* Header card */}
           <div className="bg-white rounded-xl border border-[#e2e8f0] shadow-[0px_1px_1.5px_rgba(0,0,0,0.1)] p-8 flex items-center gap-8 shrink-0">
-            <img src={imgCandidate} alt="" className="size-[120px] rounded-full object-cover shrink-0" />
+            <div className="relative shrink-0" style={{ width: 120, height: 120 }}>
+              <img src={imgCandidate} alt="" className="size-[120px] rounded-full object-cover" />
+              {candidate.isInvited && (
+                <img
+                  src={imgInvitedFrame}
+                  alt=""
+                  className="absolute pointer-events-none max-w-none"
+                  style={{ width: 156, height: 156, left: -18, top: -14 }}
+                />
+              )}
+            </div>
             <div className="flex-1 min-w-0 flex flex-col gap-5">
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center gap-3">
@@ -4458,13 +4516,307 @@ function CandidateProfileModal({ candidate, onClose, onScheduleClick, onStageCha
   );
 }
 
+// ── Pipeline list filter panel ────────────────────────────────────────────────
+
+interface PipelineFilterValues { kategori: string[]; lokasi: string[]; modeKerja: string[] }
+const EMPTY_PIPELINE_FILTERS: PipelineFilterValues = { kategori: [], lokasi: [], modeKerja: [] };
+
+function PipelineFilterPanel({ onClose, onSave, initial, kategoriOptions, lokasiOptions, modeKerjaOptions }: {
+  onClose: () => void; onSave: (f: PipelineFilterValues) => void; initial: PipelineFilterValues;
+  kategoriOptions: string[]; lokasiOptions: string[]; modeKerjaOptions: string[];
+}) {
+  const [kategori, setKategori] = useState<string[]>(initial.kategori);
+  const [lokasi, setLokasi] = useState<string[]>(initial.lokasi);
+  const [modeKerja, setModeKerja] = useState<string[]>(initial.modeKerja);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+
+  const toggleDropdown = (key: string) => setOpenDropdown((v) => (v === key ? null : key));
+  const toggleOption = (setter: React.Dispatch<React.SetStateAction<string[]>>, v: string) =>
+    setter((prev) => prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]);
+
+  return (
+    <div
+      className="absolute right-0 top-full mt-2 z-50 bg-white rounded-2xl border border-[#e6e6e7] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.06)] w-[420px]"
+      style={{ fontFamily: "Open Sans, sans-serif" }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="flex flex-col gap-4 p-6">
+        <div className="flex items-center justify-between w-full">
+          <p className="text-[#4c4f59] text-[21px] font-bold leading-[26px]" style={{ fontFamily: "DM Sans, sans-serif" }}>Filter</p>
+          <button onClick={onClose} className="bg-[#f3f4f6] rounded-full p-1 flex items-center justify-center hover:bg-gray-200 transition-colors">
+            <svg width="16" height="16" viewBox="0 0 9.33333 9.33333" fill="none">
+              <path d={svgFilterPaths.p27be5e00} fill="#606268" />
+            </svg>
+          </button>
+        </div>
+
+        <FilterSelectField
+          label="Kategori Pekerjaan"
+          values={kategori}
+          options={kategoriOptions}
+          open={openDropdown === "kategori"}
+          onToggle={() => toggleDropdown("kategori")}
+          onToggleOption={(v) => toggleOption(setKategori, v)}
+        />
+        <FilterSelectField
+          label="Lokasi"
+          values={lokasi}
+          options={lokasiOptions}
+          open={openDropdown === "lokasi"}
+          onToggle={() => toggleDropdown("lokasi")}
+          onToggleOption={(v) => toggleOption(setLokasi, v)}
+        />
+        <FilterSelectField
+          label="Mode Kerja"
+          values={modeKerja}
+          options={modeKerjaOptions}
+          open={openDropdown === "modeKerja"}
+          onToggle={() => toggleDropdown("modeKerja")}
+          onToggleOption={(v) => toggleOption(setModeKerja, v)}
+        />
+
+        <div className="flex items-center justify-end gap-3 pt-2">
+          <button
+            onClick={onClose}
+            className="px-5 py-2 rounded-full border-[1.5px] border-[#c5c6c9] text-[#4c4f59] font-bold text-base hover:bg-gray-50 transition-colors"
+            style={{ fontFamily: "DM Sans, sans-serif" }}
+          >
+            Kembali
+          </button>
+          <button
+            onClick={() => { onSave({ kategori, lokasi, modeKerja }); onClose(); }}
+            className="bg-[#0052ff] h-10 px-5 rounded-full text-white font-bold text-base w-[121px] hover:bg-[#0041cc] transition-colors"
+            style={{ fontFamily: "DM Sans, sans-serif" }}
+          >
+            Simpan
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Pipeline detail filter panel ──────────────────────────────────────────────
+
+interface PipelineDetailFilterValues {
+  appliedRange: DateRange;
+  scoreRange: [number, number];
+  showFilter: "semua" | "undangan";
+}
+const EMPTY_DETAIL_FILTERS: PipelineDetailFilterValues = {
+  appliedRange: { start: null, end: null },
+  scoreRange: [1, 5],
+  showFilter: "semua",
+};
+
+function ScoreRangeSlider({ value, onChange }: { value: [number, number]; onChange: (v: [number, number]) => void }) {
+  const min = 1, max = 5;
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [dragging, setDragging] = useState<"min" | "max" | null>(null);
+
+  const valueToPercent = (v: number) => ((v - min) / (max - min)) * 100;
+  const percentToValue = (percent: number) => {
+    const raw = min + (percent / 100) * (max - min);
+    return Math.min(max, Math.max(min, Math.round(raw)));
+  };
+
+  useEffect(() => {
+    if (!dragging) return;
+    const onMove = (e: PointerEvent) => {
+      if (!trackRef.current) return;
+      const rect = trackRef.current.getBoundingClientRect();
+      const percent = ((e.clientX - rect.left) / rect.width) * 100;
+      const v = percentToValue(percent);
+      onChange(dragging === "min" ? [Math.min(v, value[1]), value[1]] : [value[0], Math.max(v, value[0])]);
+    };
+    const onUp = () => setDragging(null);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+  }, [dragging, value, onChange]);
+
+  return (
+    <div className="flex items-center gap-2 w-full">
+      <span className="text-[12px] font-medium text-[#4c4f59] shrink-0" style={{ fontFamily: "DM Sans, sans-serif" }}>{min}</span>
+      <div ref={trackRef} className="relative flex-1 h-4">
+        <div className="absolute left-0 right-0 top-1/2 h-1 bg-[#f1f5f9] rounded-full" style={{ transform: "translateY(-50%)" }} />
+        <div
+          className="absolute top-1/2 h-1 bg-[#3d8ff5] rounded-full"
+          style={{ left: `${valueToPercent(value[0])}%`, right: `${100 - valueToPercent(value[1])}%`, transform: "translateY(-50%)" }}
+        />
+        <div
+          onPointerDown={() => setDragging("min")}
+          className="absolute top-1/2 size-3.5 rounded-full bg-[#0052ff] flex items-center justify-center shadow-sm cursor-grab active:cursor-grabbing"
+          style={{ left: `${valueToPercent(value[0])}%`, transform: "translate(-50%, -50%)" }}
+        >
+          <span className="text-white text-[8px] font-bold leading-none" style={{ fontFamily: "DM Sans, sans-serif" }}>{value[0]}</span>
+        </div>
+        <div
+          onPointerDown={() => setDragging("max")}
+          className="absolute top-1/2 size-3.5 rounded-full bg-[#0052ff] flex items-center justify-center shadow-sm cursor-grab active:cursor-grabbing"
+          style={{ left: `${valueToPercent(value[1])}%`, transform: "translate(-50%, -50%)" }}
+        >
+          <span className="text-white text-[8px] font-bold leading-none" style={{ fontFamily: "DM Sans, sans-serif" }}>{value[1]}</span>
+        </div>
+      </div>
+      <span className="text-[12px] font-medium text-[#4c4f59] shrink-0" style={{ fontFamily: "DM Sans, sans-serif" }}>{max}</span>
+    </div>
+  );
+}
+
+function PipelineDetailFilterPanel({ onClose, onSave, initial }: {
+  onClose: () => void; onSave: (f: PipelineDetailFilterValues) => void; initial: PipelineDetailFilterValues;
+}) {
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [appliedRange, setAppliedRange] = useState<DateRange>(initial.appliedRange);
+  const [hovered, setHovered] = useState<Date | null>(null);
+  const [scoreRange, setScoreRange] = useState<[number, number]>(initial.scoreRange);
+  const [showFilter, setShowFilter] = useState<"semua" | "undangan">(initial.showFilter);
+
+  const handleDateSelect = (date: Date) => {
+    if (!appliedRange.start || (appliedRange.start && appliedRange.end)) {
+      setAppliedRange({ start: date, end: null });
+    } else {
+      const ordered = isBefore(date, appliedRange.start)
+        ? { start: date, end: appliedRange.start }
+        : { start: appliedRange.start, end: date };
+      setAppliedRange(ordered);
+      setDatePickerOpen(false);
+    }
+  };
+
+  const formatRange = (range: DateRange) => {
+    const fmt = (d: Date) => format(d, "dd/MM/yyyy");
+    if (!range.start) return "DD/MM/YYYY - DD/MM/YYYY";
+    if (!range.end) return `${fmt(range.start)} - DD/MM/YYYY`;
+    return `${fmt(range.start)} - ${fmt(range.end)}`;
+  };
+
+  const fieldClass = "bg-white h-10 rounded border border-[#c5c6c9] flex items-center gap-2 px-3 w-full cursor-pointer hover:border-[#9ca0a8] transition-colors";
+  const labelClass = "text-[#383b46] text-[12px] leading-[18px] whitespace-nowrap";
+
+  return (
+    <div
+      className="absolute right-0 top-full mt-2 z-50 bg-white rounded-2xl border border-[#e6e6e7] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1),0px_1px_2px_0px_rgba(0,0,0,0.06)] w-[420px]"
+      style={{ fontFamily: "Open Sans, sans-serif" }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="flex flex-col gap-4 p-6">
+        <div className="flex items-center justify-between w-full">
+          <p className="text-[#4c4f59] text-[21px] font-bold leading-[26px]" style={{ fontFamily: "DM Sans, sans-serif" }}>Filter</p>
+          <button onClick={onClose} className="bg-[#f3f4f6] rounded-full p-1 flex items-center justify-center hover:bg-gray-200 transition-colors">
+            <svg width="16" height="16" viewBox="0 0 9.33333 9.33333" fill="none">
+              <path d={svgFilterPaths.p27be5e00} fill="#606268" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Tanggal Melamar */}
+        <div className="flex flex-col gap-2 w-full">
+          <span className={labelClass}>Tanggal Melamar</span>
+          <div
+            className={`${fieldClass} ${datePickerOpen ? "border-[#0052ff]" : ""}`}
+            onClick={() => setDatePickerOpen((v) => !v)}
+          >
+            <p className={`flex-1 min-w-0 text-[12px] leading-[18px] ${appliedRange.start ? "text-[#383b46]" : "text-[#c5c6c9]"}`}>
+              {formatRange(appliedRange)}
+            </p>
+            <Calendar size={14} className={`shrink-0 ${datePickerOpen ? "text-[#0052ff]" : "text-[#606268]"}`} />
+          </div>
+          {datePickerOpen && (
+            <div className="border border-[#e6e6e7] rounded-xl p-3 bg-white shadow-sm">
+              <MiniCalendar range={appliedRange} hovered={hovered} onHover={setHovered} onSelect={handleDateSelect} />
+              {appliedRange.start && (
+                <button
+                  onClick={() => setAppliedRange({ start: null, end: null })}
+                  className="mt-2 text-[11px] text-[#9ca0a8] hover:text-[#606268] transition-colors"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Rentang Scoring */}
+        <div className="flex flex-col gap-3 w-full">
+          <span className={labelClass}>Rentang Scoring</span>
+          <ScoreRangeSlider value={scoreRange} onChange={setScoreRange} />
+        </div>
+
+        {/* Tampilkan */}
+        <div className="flex flex-col gap-3 w-full">
+          <span className={labelClass}>Tampilkan</span>
+          <div className="flex flex-col gap-2.5 w-full">
+            {(["semua", "undangan"] as const).map((opt) => {
+              const selected = showFilter === opt;
+              return (
+                <div key={opt} onClick={() => setShowFilter(opt)} className="flex items-center gap-2.5 cursor-pointer">
+                  <div className={`size-[18px] rounded-full border-[1.5px] flex items-center justify-center shrink-0 transition-colors ${selected ? "border-[#0052ff]" : "border-[#c5c6c9]"}`}>
+                    {selected && <div className="size-2.5 rounded-full bg-[#0052ff]" />}
+                  </div>
+                  <span className="text-[14px] text-[#4c4f59]" style={{ fontFamily: "Open Sans, sans-serif" }}>
+                    {opt === "semua" ? "Semua Pelamar" : "Pelamar via Undangan"}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end gap-3 pt-2">
+          <button
+            onClick={onClose}
+            className="px-5 py-2 rounded-full border-[1.5px] border-[#c5c6c9] text-[#4c4f59] font-bold text-base hover:bg-gray-50 transition-colors"
+            style={{ fontFamily: "DM Sans, sans-serif" }}
+          >
+            Kembali
+          </button>
+          <button
+            onClick={() => { onSave({ appliedRange, scoreRange, showFilter }); onClose(); }}
+            className="bg-[#0052ff] h-10 px-5 rounded-full text-white font-bold text-base w-[121px] hover:bg-[#0041cc] transition-colors"
+            style={{ fontFamily: "DM Sans, sans-serif" }}
+          >
+            Simpan
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Pipeline list page ────────────────────────────────────────────────────────
 
 function PipelineContent() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<PipelineFilterValues>(EMPTY_PIPELINE_FILTERS);
+  const filterRef = useRef<HTMLDivElement>(null);
 
-  const filtered = PIPELINE_JOBS.filter(j => j.nama.toLowerCase().includes(search.toLowerCase()));
+  useEffect(() => {
+    if (!filterOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) setFilterOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [filterOpen]);
+
+  const kategoriOptions = Array.from(new Set(PIPELINE_JOBS.map(j => j.kategori)));
+  const lokasiOptions = Array.from(new Set(PIPELINE_JOBS.map(j => j.lokasi)));
+  const modeKerjaOptions = Array.from(new Set(PIPELINE_JOBS.map(j => j.tipe.split(" · ")[0])));
+
+  const filtered = PIPELINE_JOBS.filter(j => {
+    const matchSearch = j.nama.toLowerCase().includes(search.toLowerCase());
+    const matchKategori = activeFilters.kategori.length === 0 || activeFilters.kategori.includes(j.kategori);
+    const matchLokasi = activeFilters.lokasi.length === 0 || activeFilters.lokasi.includes(j.lokasi);
+    const matchMode = activeFilters.modeKerja.length === 0 || activeFilters.modeKerja.includes(j.tipe.split(" · ")[0]);
+    return matchSearch && matchKategori && matchLokasi && matchMode;
+  });
 
   const statusBadge = (s: "Diterbitkan" | "Tutup") =>
     s === "Diterbitkan"
@@ -4492,53 +4844,83 @@ function PipelineContent() {
               className="flex-1 text-[13px] text-[#4c4f59] placeholder-[#c5c6c9] outline-none bg-transparent"
               style={{ fontFamily: "DM Sans, sans-serif" }} />
           </div>
-          <button className="h-10 px-4 rounded-full border border-[#c5c6c9] bg-white flex items-center gap-2 hover:bg-gray-50 transition-colors">
-            <span className="text-[13px] text-[#4c4f59]" style={{ fontFamily: "DM Sans, sans-serif" }}>Filter</span>
-            <ListFilter size={14} className="text-[#606268]" />
-          </button>
+          <div ref={filterRef} className="relative">
+            <button
+              onClick={() => setFilterOpen(v => !v)}
+              className={`h-10 px-4 rounded-full border bg-white flex items-center gap-2 hover:bg-gray-50 transition-colors ${filterOpen ? "border-[#0052ff] text-[#0052ff]" : "border-[#c5c6c9] text-[#4c4f59]"}`}
+            >
+              <span className="text-[13px]" style={{ fontFamily: "DM Sans, sans-serif" }}>Filter</span>
+              <ListFilter size={14} className={filterOpen ? "text-[#0052ff]" : "text-[#606268]"} />
+            </button>
+            {filterOpen && (
+              <PipelineFilterPanel
+                onClose={() => setFilterOpen(false)}
+                onSave={setActiveFilters}
+                initial={activeFilters}
+                kategoriOptions={kategoriOptions}
+                lokasiOptions={lokasiOptions}
+                modeKerjaOptions={modeKerjaOptions}
+              />
+            )}
+          </div>
         </div>
 
         {/* Job cards */}
-        <div className="flex flex-col gap-4">
-          {filtered.map(job => (
-            <div key={job.id} className="bg-white rounded-xl border border-[#e6e6e7] px-6 py-5 flex items-center justify-between hover:border-[#c5c6c9] transition-colors">
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-3">
-                  <p className="text-[18px] font-bold text-[#383b46]" style={{ fontFamily: "DM Sans, sans-serif" }}>{job.nama}</p>
-                  <span className={`${statusBadge(job.status)} text-[11px] font-semibold px-2 py-0.5 rounded-full`} style={{ fontFamily: "DM Sans, sans-serif" }}>{job.status}</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d={svgDetailPaths.p1b8a0e00} stroke="#777980" strokeLinecap="round" strokeWidth="1.5" /></svg>
-                    <span className="text-[12px] text-[#475569]" style={{ fontFamily: "Inter, sans-serif" }}>{job.lokasi}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d={svgDetailPaths.p2e445000} stroke="#777980" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" /></svg>
-                    <span className="text-[12px] text-[#475569]" style={{ fontFamily: "Inter, sans-serif" }}>{job.tipe}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d={svgDetailPaths.p33811580} stroke="#777980" strokeLinecap="round" strokeWidth="1.5" /></svg>
-                    <span className="text-[12px] text-[#475569]" style={{ fontFamily: "Inter, sans-serif" }}>{job.kategori}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {PIPELINE_STAGES.map((stage, i) => (
-                    <React.Fragment key={stage}>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[13px] font-semibold text-[#383b46]" style={{ fontFamily: "DM Sans, sans-serif" }}>{job.counts[stage]}</span>
-                        <span className="text-[13px] text-[#64748b]" style={{ fontFamily: "DM Sans, sans-serif" }}>{stage}</span>
-                      </div>
-                      {i < PIPELINE_STAGES.length - 1 && <span className="text-[#c5c6c9]">|</span>}
-                    </React.Fragment>
-                  ))}
-                </div>
+        {filtered.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center gap-4 py-24">
+            <div className="bg-[#f0f2ff] rounded-full w-[120px] h-[111px] flex items-center justify-center">
+              <div className="flex flex-col items-center gap-1">
+                <div className="bg-[#6b6efa] rounded w-12 h-9" />
+                <div className="bg-[#6b6efa]/50 rounded w-6 h-2.5" />
               </div>
-              <button onClick={() => navigate(`/pipeline/${job.id}`)}
-                className="h-10 px-5 rounded-full border-[1.5px] border-[#0052ff] text-[#0052ff] font-bold text-[14px] hover:bg-[#ebf2ff] transition-colors shrink-0"
-                style={{ fontFamily: "DM Sans, sans-serif" }}>Lihat Pipeline</button>
             </div>
-          ))}
-        </div>
+            <p className="text-[18px] font-semibold text-[#1a1a26]" style={{ fontFamily: "Inter, sans-serif" }}>Belum ada lowongan tersedia</p>
+            <p className="text-[14px] text-[#787d8c] text-center" style={{ fontFamily: "Inter, sans-serif" }}>
+              Saat ini tidak ada lowongan yang cocok<br />dengan pencarian kamu.
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {filtered.map(job => (
+              <div key={job.id} className="bg-white rounded-xl border border-[#e2e8f0] shadow-[0px_2px_2px_rgba(0,0,0,0.02)] px-5 py-5 flex items-center justify-between hover:border-[#c5c6c9] transition-colors">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-3">
+                    <p className="text-[16px] font-semibold text-[#383b46]" style={{ fontFamily: "DM Sans, sans-serif" }}>{job.nama}</p>
+                    <span className={`${statusBadge(job.status)} text-[11px] font-semibold px-2 py-1 rounded-full`} style={{ fontFamily: "DM Sans, sans-serif" }}>{job.status}</span>
+                  </div>
+                  <div className="flex items-center gap-3.5">
+                    <div className="flex items-center gap-1">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d={svgDetailPaths.p1b8a0e00} stroke="#777980" strokeLinecap="round" strokeWidth="1.5" /></svg>
+                      <span className="text-[12px] text-[#475569]" style={{ fontFamily: "Inter, sans-serif" }}>{job.lokasi}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d={svgDetailPaths.p2e445000} stroke="#777980" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" /></svg>
+                      <span className="text-[12px] text-[#475569]" style={{ fontFamily: "Inter, sans-serif" }}>{job.tipe}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d={svgDetailPaths.p33811580} stroke="#777980" strokeLinecap="round" strokeWidth="1.5" /></svg>
+                      <span className="text-[12px] text-[#475569]" style={{ fontFamily: "Inter, sans-serif" }}>{job.kategori}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    {PIPELINE_SUMMARY_STAGES.map(({ stage, bg }, i) => (
+                      <React.Fragment key={stage}>
+                        <div className="flex items-center gap-1">
+                          <span className={`${bg} text-[#374151] text-[12px] font-bold px-1.5 py-0.5 rounded`} style={{ fontFamily: "DM Sans, sans-serif" }}>{job.counts[stage]}</span>
+                          <span className="text-[12px] text-[#475569]" style={{ fontFamily: "DM Sans, sans-serif" }}>{stage}</span>
+                        </div>
+                        {i < PIPELINE_SUMMARY_STAGES.length - 1 && <span className="text-[#647396] text-[12px]">|</span>}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
+                <button onClick={() => navigate(`/pipeline/${job.id}`)}
+                  className="h-10 px-5 rounded-full border-[1.5px] border-[#0052ff] text-[#0052ff] font-bold text-[14px] hover:bg-[#ebf2ff] transition-colors shrink-0"
+                  style={{ fontFamily: "DM Sans, sans-serif" }}>Lihat Pipeline</button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -4548,12 +4930,29 @@ function PipelineContent() {
 
 function PipelineDetailContent() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams<{ id: string }>();
   const job = PIPELINE_JOBS.find(j => j.id === id);
   const [candidates, setCandidates] = useState<Candidate[]>(() => (id && CANDIDATES_BY_JOB[id]) ?? []);
-  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(() => {
+    const openId = (location.state as { openCandidateId?: string } | null)?.openCandidateId;
+    if (!openId || !id) return null;
+    return (CANDIDATES_BY_JOB[id] ?? []).find(c => c.id === openId) ?? null;
+  });
   const [search, setSearch] = useState("");
   const [pendingMove, setPendingMove] = useState<{ candidateId: string; from: PipelineStage; to: PipelineStage } | null>(null);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<PipelineDetailFilterValues>(EMPTY_DETAIL_FILTERS);
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!filterOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) setFilterOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [filterOpen]);
 
   // Multi-select + bulk actions
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -4571,7 +4970,17 @@ function PipelineDetailContent() {
     </div>
   );
 
-  const filteredCandidates = candidates.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
+  const filteredCandidates = candidates.filter(c => {
+    const matchSearch = c.name.toLowerCase().includes(search.toLowerCase());
+    const matchScore = c.rating == null || (c.rating >= activeFilters.scoreRange[0] && c.rating <= activeFilters.scoreRange[1]);
+    const matchShow = activeFilters.showFilter === "semua" || !!c.isInvited;
+    let matchDate = true;
+    if (activeFilters.appliedRange.start && activeFilters.appliedRange.end) {
+      const d = parse(c.appliedDate, "d MMM yyyy", new Date());
+      matchDate = isWithinInterval(d, { start: activeFilters.appliedRange.start, end: activeFilters.appliedRange.end });
+    }
+    return matchSearch && matchScore && matchShow && matchDate;
+  });
   const pendingCandidate = pendingMove ? candidates.find(c => c.id === pendingMove.candidateId) : null;
 
   const toggleSelect = (candidateId: string) => {
@@ -4680,10 +5089,22 @@ function PipelineDetailContent() {
                   className="flex-1 min-w-0 text-[13px] text-[#4c4f59] placeholder-[#c5c6c9] outline-none bg-transparent"
                   style={{ fontFamily: "DM Sans, sans-serif" }} />
               </div>
-              <button className="h-10 px-4 rounded-full border-[1.5px] border-[#c5c6c9] bg-white flex items-center gap-2 hover:bg-gray-50 transition-colors shrink-0">
-                <span className="text-[13px] font-bold text-[#4c4f59]" style={{ fontFamily: "DM Sans, sans-serif" }}>Filter</span>
-                <ListFilter size={14} className="text-[#606268]" />
-              </button>
+              <div ref={filterRef} className="relative shrink-0">
+                <button
+                  onClick={() => setFilterOpen(v => !v)}
+                  className={`h-10 px-4 rounded-full border-[1.5px] bg-white flex items-center gap-2 hover:bg-gray-50 transition-colors ${filterOpen ? "border-[#0052ff] text-[#0052ff]" : "border-[#c5c6c9] text-[#4c4f59]"}`}
+                >
+                  <span className="text-[13px] font-bold" style={{ fontFamily: "DM Sans, sans-serif" }}>Filter</span>
+                  <ListFilter size={14} className={filterOpen ? "text-[#0052ff]" : "text-[#606268]"} />
+                </button>
+                {filterOpen && (
+                  <PipelineDetailFilterPanel
+                    onClose={() => setFilterOpen(false)}
+                    onSave={setActiveFilters}
+                    initial={activeFilters}
+                  />
+                )}
+              </div>
             </div>
           </div>
 
@@ -5290,6 +5711,162 @@ function ProfileSettingsContent() {
   );
 }
 
+// ── Cari Kandidat page ────────────────────────────────────────────────────────
+
+const CARI_KANDIDAT_SKILLS = ["React", "Node.js", "TypeScript", "Python", "SQL", "UI/UX Design", "Project Management", "Digital Marketing"];
+const CARI_KANDIDAT_KETERSEDIAAN = ["Segera", "2 Minggu", "1 Bulan", "> 1 Bulan"];
+
+function SingleSelectField({ label, value, options, open, onToggle, onSelect }: {
+  label: string; value: string; options: string[]; open: boolean; onToggle: () => void; onSelect: (v: string) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-2 flex-1 min-w-0 relative">
+      <span className="text-[12px] font-medium text-[#4c4f59]" style={{ fontFamily: "DM Sans, sans-serif" }}>{label}</span>
+      <div
+        onClick={onToggle}
+        className={`bg-white h-12 rounded-xl border flex items-center justify-between px-4 cursor-pointer transition-colors ${open ? "border-[#0052ff]" : "border-[#e6e6e7] hover:border-[#c5c6c9]"}`}
+      >
+        <p className={`flex-1 min-w-0 text-[14px] truncate ${value ? "text-[#383b46]" : "text-[#777980]"}`} style={{ fontFamily: "DM Sans, sans-serif" }}>
+          {value || `Pilih ${label.toLowerCase()}`}
+        </p>
+        <ChevronDown size={20} className={`shrink-0 transition-transform ${open ? "rotate-180 text-[#0052ff]" : "text-[#777980]"}`} />
+      </div>
+      {open && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl border border-[#e6e6e7] shadow-lg z-10 overflow-hidden max-h-[200px] overflow-y-auto">
+          {options.map((opt) => (
+            <div
+              key={opt}
+              onClick={(e) => { e.stopPropagation(); onSelect(opt); }}
+              className={`px-4 py-2.5 text-[13px] cursor-pointer hover:bg-[#f3f4f6] transition-colors ${value === opt ? "text-[#0052ff] font-semibold bg-[#ebf2ff]" : "text-[#383b46]"}`}
+              style={{ fontFamily: "DM Sans, sans-serif" }}
+            >
+              {opt}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CariKandidatContent() {
+  const [tab, setTab] = useState<"cari" | "disimpan">("cari");
+  const [formVisible, setFormVisible] = useState(true);
+  const [openField, setOpenField] = useState<string | null>(null);
+  const [namaLowongan, setNamaLowongan] = useState("");
+  const [skill, setSkill] = useState("");
+  const [pengalaman, setPengalaman] = useState("");
+  const [pendidikan, setPendidikan] = useState("");
+  const [lokasi, setLokasi] = useState("");
+  const [ketersediaan, setKetersediaan] = useState("");
+  const formRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!openField) return;
+    const handler = (e: MouseEvent) => {
+      if (formRef.current && !formRef.current.contains(e.target as Node)) setOpenField(null);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [openField]);
+
+  const toggleField = (key: string) => setOpenField((v) => (v === key ? null : key));
+  const namaLowonganOptions = PIPELINE_JOBS.map((j) => j.nama);
+
+  return (
+    <div className="flex-1 min-w-0 h-full overflow-y-auto bg-[#f9f9f9]">
+      {/* Top bar */}
+      <div className="bg-white border-b border-[#e6e6e7] px-10 py-5 flex items-center justify-end shrink-0">
+        <div className="flex items-center gap-4">
+          <button className="border border-[#e6e6e7] rounded-full p-2.5">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M10 2a6 6 0 016 6c0 3.5 1.5 5 1.5 5H2.5S4 11.5 4 8a6 6 0 016-6zM8 16a2 2 0 004 0" stroke="#64748B" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </button>
+          <TopBarUserMenu />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-8 px-10 pt-8 pb-12">
+        <div>
+          <p className="text-[28px] font-bold text-[#383b46]" style={{ fontFamily: "DM Sans, sans-serif" }}>Cari Kandidat</p>
+          <p className="text-sm text-[#64748b] mt-1" style={{ fontFamily: "DM Sans, sans-serif" }}>Temukan dan undang talenta terbaik secara proaktif</p>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex items-end gap-8">
+          <button onClick={() => setTab("cari")} className="flex flex-col items-center gap-2">
+            <span className={`text-[14px] font-bold whitespace-nowrap ${tab === "cari" ? "text-[#0052ff]" : "text-[#94a3b8]"}`} style={{ fontFamily: "DM Sans, sans-serif" }}>Cari Kandidat</span>
+            <div className={`h-[3px] w-full rounded-t-[2px] ${tab === "cari" ? "bg-[#0052ff]" : "bg-transparent"}`} />
+          </button>
+          <button onClick={() => setTab("disimpan")} className="flex flex-col items-center gap-2">
+            <span className="flex items-center gap-2 whitespace-nowrap">
+              <span className={`text-[14px] font-semibold ${tab === "disimpan" ? "text-[#0052ff]" : "text-[#94a3b8]"}`} style={{ fontFamily: "DM Sans, sans-serif" }}>Kandidat Disimpan</span>
+              <span className="bg-[#ebf2ff] text-[#777980] text-[12px] font-semibold px-1.5 py-0.5 rounded">0</span>
+            </span>
+            <div className={`h-[3px] w-full rounded-t-[2px] ${tab === "disimpan" ? "bg-[#0052ff]" : "bg-[#e2e8f0]"}`} />
+          </button>
+        </div>
+
+        {tab === "cari" ? (
+          <div ref={formRef} className="bg-white rounded-2xl border border-[#e6e6e7] p-6 flex flex-col gap-4 w-full">
+            <div className="flex items-start justify-between gap-4 w-full">
+              <div className="flex flex-col gap-1">
+                <p className="text-[20px] font-bold text-[#4c4f59]" style={{ fontFamily: "DM Sans, sans-serif" }}>Cari kandidat</p>
+                <p className="text-[14px] text-[#64748b]" style={{ fontFamily: "DM Sans, sans-serif" }}>Isi kriteria untuk menemukan kandidat yang sesuai.</p>
+              </div>
+              <button onClick={() => setFormVisible((v) => !v)} className="text-[14px] font-bold text-[#0052ff] shrink-0 hover:underline" style={{ fontFamily: "DM Sans, sans-serif" }}>
+                {formVisible ? "Sembunyikan" : "Tampilkan"}
+              </button>
+            </div>
+
+            {formVisible && (
+              <>
+                <div className="flex flex-col gap-4 w-full">
+                  <div className="flex gap-4 w-full">
+                    <SingleSelectField label="Nama Lowongan" value={namaLowongan} options={namaLowonganOptions} open={openField === "namaLowongan"} onToggle={() => toggleField("namaLowongan")} onSelect={(v) => { setNamaLowongan(v); setOpenField(null); }} />
+                    <SingleSelectField label="Skill" value={skill} options={CARI_KANDIDAT_SKILLS} open={openField === "skill"} onToggle={() => toggleField("skill")} onSelect={(v) => { setSkill(v); setOpenField(null); }} />
+                    <SingleSelectField label="Pengalaman" value={pengalaman} options={PENGALAMAN_OPTIONS} open={openField === "pengalaman"} onToggle={() => toggleField("pengalaman")} onSelect={(v) => { setPengalaman(v); setOpenField(null); }} />
+                  </div>
+                  <div className="flex gap-4 w-full">
+                    <SingleSelectField label="Pendidikan" value={pendidikan} options={PENDIDIKAN_OPTIONS} open={openField === "pendidikan"} onToggle={() => toggleField("pendidikan")} onSelect={(v) => { setPendidikan(v); setOpenField(null); }} />
+                    <SingleSelectField label="Lokasi" value={lokasi} options={LOKASI_OPTIONS} open={openField === "lokasi"} onToggle={() => toggleField("lokasi")} onSelect={(v) => { setLokasi(v); setOpenField(null); }} />
+                    <SingleSelectField label="Ketersediaan" value={ketersediaan} options={CARI_KANDIDAT_KETERSEDIAAN} open={openField === "ketersediaan"} onToggle={() => toggleField("ketersediaan")} onSelect={(v) => { setKetersediaan(v); setOpenField(null); }} />
+                  </div>
+                </div>
+
+                <button className="h-12 w-[214px] rounded-full bg-[#0052ff] text-white font-bold text-[16px] hover:bg-[#0041cc] transition-colors" style={{ fontFamily: "DM Sans, sans-serif" }}>
+                  Cari Kandidat
+                </button>
+
+                <div className="flex items-center justify-between w-full flex-wrap gap-2">
+                  <p className="text-[12px] text-[#4c4f59]" style={{ fontFamily: "DM Sans, sans-serif" }}>
+                    Kuota pencarian: <span className="font-bold">2/3</span> terpakai. Upgrade paket Talent Search untuk kuota lebih banyak.
+                  </p>
+                  <button className="text-[14px] font-bold text-[#0052ff] hover:underline shrink-0" style={{ fontFamily: "DM Sans, sans-serif" }}>Lihat Paket Berlangganan</button>
+                </div>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center gap-4 py-24">
+            <div className="bg-[#f0f2ff] rounded-full w-[120px] h-[111px] flex items-center justify-center">
+              <div className="flex flex-col items-center gap-1">
+                <div className="bg-[#6b6efa] rounded w-12 h-9" />
+                <div className="bg-[#6b6efa]/50 rounded w-6 h-2.5" />
+              </div>
+            </div>
+            <p className="text-[18px] font-semibold text-[#1a1a26]" style={{ fontFamily: "Inter, sans-serif" }}>Belum ada kandidat disimpan</p>
+            <p className="text-[14px] text-[#787d8c] text-center" style={{ fontFamily: "Inter, sans-serif" }}>
+              Simpan kandidat favorit kamu dari hasil pencarian<br />untuk melihatnya di sini.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function PlaceholderPage({ label }: { label: string }) {
   return (
     <div className="flex-1 min-w-0 h-full bg-[#f9f9f9] flex items-center justify-center">
@@ -5535,7 +6112,7 @@ const router = createBrowserRouter([
       { path: "/lowongan",      Component: LowonganContent },
       { path: "/pipeline",      Component: PipelineContent },
       { path: "/pipeline/:id",  Component: PipelineDetailContent },
-      { path: "/list-kandidat", Component: () => <PlaceholderPage label="List Kandidat" /> },
+      { path: "/list-kandidat", Component: CariKandidatContent },
       { path: "/analitik",      Component: AnalyticsContent },
       { path: "/post-job",       Component: PostJobContent },
       { path: "/lowongan/:id",   Component: LowonganDetailContent },
