@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { RouterProvider, useNavigate, useLocation, useParams, useRouteError, createBrowserRouter, Outlet } from "react-router";
+import { RouterProvider, useNavigate, useLocation, useParams, useRouteError, createBrowserRouter, Outlet, useOutletContext } from "react-router";
 import svgLoginPaths from "../imports/Register-4/svg-94u8bsjmpz";
 import svgLowonganPaths from "../imports/LowonganPageJobList/svg-we7j378d6k";
 import svgFilterPaths from "../imports/Filter-1/svg-doy4j2cmxe";
@@ -11,11 +11,10 @@ import imgInvitedFrame from "../imports/InvitedBadge/avatar-framed.png";
 import imgAvatar from "../imports/LowonganPageJobList/c6659080845fc664635625ec6b1f2bd6fc3a8f49.png";
 import Lottie from "lottie-react";
 import blueLoadingAnim from "../imports/blue_loading__1_.json";
-import { Eye, EyeOff, ChevronDown, Paperclip, Info, Check, Upload, X, Search, ListFilter, MoreVertical, Pencil, Copy, Trash2, Calendar, ChevronLeft, ChevronRight, ArrowLeft, MapPin, Briefcase, Video, Download, ArrowRightLeft, User, LogOut, Building2, Settings, Italic, Underline, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Link2, Clock } from "lucide-react";
+import { Eye, EyeOff, ChevronDown, Paperclip, Info, Check, Upload, X, Search, ListFilter, MoreVertical, Pencil, Copy, Trash2, Calendar, ChevronLeft, ChevronRight, ArrowLeft, MapPin, Briefcase, Video, Download, ArrowRightLeft, User, LogOut, Building2, Settings, Italic, Underline, List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify, Link2, Clock, Bell, Users, CreditCard, Plus, Folder, BadgeCheck, FileText } from "lucide-react";
 import { format, parse, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameDay, isWithinInterval, addMonths, subMonths, isBefore } from "date-fns";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -1295,8 +1294,8 @@ function TopBarUserMenu() {
               onClick={() => { setOpen(false); navigate("/profile"); }}
               className="flex items-center gap-3 px-4 py-2.5 w-full hover:bg-gray-50 transition-colors text-left"
             >
-              <User size={20} className="text-[#383b46]" />
-              <span className="flex-1 text-[16px] text-[#383b46]" style={{ fontFamily: "Inter, sans-serif" }}>Profile</span>
+              <Settings size={20} className="text-[#383b46]" />
+              <span className="flex-1 text-[16px] text-[#383b46]" style={{ fontFamily: "Inter, sans-serif" }}>Pengaturan</span>
             </button>
             <div className="h-px bg-[#e6e6e7] w-full" />
             <button
@@ -1326,29 +1325,46 @@ function SidebarLogo() {
   );
 }
 
-function ProfileSidebar() {
+function SettingsSidebar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
   return (
-    <div className="bg-white w-[260px] shrink-0 h-full flex flex-col gap-8 p-6 border-r border-[#e6e6e7]">
+    <div className="bg-white w-[260px] shrink-0 h-full flex flex-col gap-6 p-6 border-r border-[#e6e6e7] overflow-y-auto">
       <SidebarLogo />
-      <div className="flex flex-col gap-2 w-full">
-        {SETTINGS_NAV.map(item => {
-          const isActive = pathname === item.path;
-          const Icon = item.icon;
-          return (
-            <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-semibold transition-colors text-left ${isActive ? "bg-[#ebf2ff] text-[#0044d2]" : "text-[#383b46] hover:bg-gray-50"}`}
-              style={{ fontFamily: "DM Sans, sans-serif" }}
-            >
-              <Icon size={20} className={isActive ? "text-[#0052ff]" : "text-[#64748b]"} />
-              {item.label}
-            </button>
-          );
-        })}
+
+      <button
+        onClick={() => navigate("/dashboard")}
+        className="flex items-center gap-2 w-full px-4 py-2.5 rounded-lg border border-[#e6e6e7] text-sm font-semibold text-[#383b46] hover:bg-gray-50 transition-colors text-left"
+        style={{ fontFamily: "DM Sans, sans-serif" }}
+      >
+        <ArrowLeft size={16} />
+        Kembali ke Dashboard
+      </button>
+
+      <div className="flex flex-col gap-6 w-full">
+        {SETTINGS_NAV_GROUPS.map(group => (
+          <div key={group.title} className="flex flex-col gap-1 w-full">
+            <p className="px-4 text-[11px] font-bold text-[#9b9ca1] tracking-wide" style={{ fontFamily: "DM Sans, sans-serif" }}>{group.title}</p>
+            {group.items.map(item => {
+              const isActive = pathname === item.path
+                || (item.path === "/profile" && (pathname === "/profile/edit" || pathname === "/profile/change-password"))
+                || (item.path === "/profile/company" && pathname === "/profile/company/edit");
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.path}
+                  onClick={() => navigate(item.path)}
+                  className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-semibold transition-colors text-left ${isActive ? "bg-[#ebf2ff] text-[#0044d2]" : "text-[#383b46] hover:bg-gray-50"}`}
+                  style={{ fontFamily: "DM Sans, sans-serif" }}
+                >
+                  <Icon size={20} className={isActive ? "text-[#0052ff]" : "text-[#64748b]"} />
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -1380,7 +1396,7 @@ function DashboardSidebar() {
         onClick={() => navigate(path)}
         className={`flex items-center gap-3 w-full rounded-lg text-sm font-semibold transition-colors text-left ${
           isActive ? "bg-[#ebf2ff] text-[#0044d2]" : "text-[#383b46] hover:bg-gray-50"
-        } ${indent ? "pl-10 py-2 px-4" : "px-4 py-3"}`}
+        } ${indent ? "pl-12 pr-4 py-2" : "px-4 py-3"}`}
         style={{ fontFamily: "DM Sans, sans-serif" }}
       >
         {!indent && (
@@ -1388,7 +1404,6 @@ function DashboardSidebar() {
             <SidebarIcon d={d} />
           </span>
         )}
-        {indent && <span className="w-5" />}
         {label}
       </button>
     );
@@ -1417,10 +1432,10 @@ function DashboardSidebar() {
             <span className={candidateActive ? "text-[#0052ff]" : "text-[#64748b]"}>
               <SidebarIcon d={usersD} />
             </span>
-            <span className="flex-1 text-left whitespace-nowrap">Manajemen Kandidat</span>
+            <span className="shrink-0 text-left whitespace-nowrap">Manajemen Kandidat</span>
             <svg
               width="14" height="14" viewBox="0 0 14 14" fill="none"
-              className={`transition-transform duration-200 ${candidateOpen ? "rotate-180" : ""}`}
+              className={`shrink-0 transition-transform duration-200 ${candidateOpen ? "rotate-180" : ""}`}
             >
               <path d="M2 4l5 5 5-5" stroke={candidateActive ? "#0052ff" : "#606268"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -3711,7 +3726,7 @@ const PIPELINE_SUMMARY_STAGES: { stage: PipelineStage; bg: string }[] = [
 
 interface PipelineJob {
   id: string; nama: string; status: "Diterbitkan" | "Tutup";
-  lokasi: string; tipe: string; kategori: string;
+  lokasi: string; tipe: string; kategori: string; createdBy?: string;
   counts: Record<PipelineStage, number>;
 }
 
@@ -3719,6 +3734,7 @@ interface Candidate {
   id: string; name: string; role: string; stage: PipelineStage; appliedDate: string;
   rating?: number; interviewSchedule?: string; createdBy?: string;
   interviewDuration?: number; interviewNote?: string; isInvited?: boolean;
+  interviewDateTime?: Date; interviewTimezone?: string;
 }
 
 const PIPELINE_JOBS: PipelineJob[] = [
@@ -3733,7 +3749,7 @@ const CANDIDATES_BY_JOB: Record<string, Candidate[]> = {
     { id: "C1", name: "Budi Santoso",   role: "Senior Software Engineer", stage: "Melamar",     appliedDate: "12 Jun 2025", rating: 4.2, isInvited: true },
     { id: "C2", name: "Ananda Putri",   role: "Backend Developer",        stage: "Melamar",     appliedDate: "13 Jun 2025", rating: 4.0 },
     { id: "C3", name: "Rizky Pratama",  role: "Software Engineer",        stage: "Penyaringan", appliedDate: "10 Jun 2025", rating: 4.5 },
-    { id: "C4", name: "Dewi Lestari",   role: "Full Stack Developer",     stage: "Wawancara",   appliedDate: "8 Jun 2025",  rating: 4.7, interviewSchedule: "10 Jul · 14:00" },
+    { id: "C4", name: "Dewi Lestari",   role: "Full Stack Developer",     stage: "Wawancara",   appliedDate: "8 Jun 2025",  rating: 4.7, interviewSchedule: "10 Jul · 14:00 WIB", interviewDateTime: new Date(Date.UTC(2025, 6, 10, 14, 0) - 7 * 3600000), interviewTimezone: "WIB" },
     { id: "C18", name: "Fajar Nugraha", role: "Backend Engineer",        stage: "Wawancara",   appliedDate: "9 Jun 2025",  rating: 4.3, isInvited: true },
     { id: "C5", name: "Bambang Wijaya", role: "Backend Specialist",       stage: "Ditawarkan",  appliedDate: "5 Jun 2025",  rating: 4.8 },
     { id: "C13", name: "Farhan Maulana", role: "Backend Engineer",       stage: "Diterima",    appliedDate: "1 Jun 2025",  rating: 4.9, isInvited: true },
@@ -3742,7 +3758,7 @@ const CANDIDATES_BY_JOB: Record<string, Candidate[]> = {
   "PJ-02": [
     { id: "C6", name: "Sari Indah",     role: "UI/UX Designer",           stage: "Melamar",     appliedDate: "14 Jun 2025", rating: 4.1 },
     { id: "C7", name: "Eko Prasetyo",   role: "Product Designer",         stage: "Penyaringan", appliedDate: "11 Jun 2025", rating: 4.3, isInvited: true },
-    { id: "C8", name: "Fitri Wahyuni",  role: "Senior UX Researcher",     stage: "Wawancara",   appliedDate: "9 Jun 2025",  rating: 4.6, interviewSchedule: "12 Jul · 10:00" },
+    { id: "C8", name: "Fitri Wahyuni",  role: "Senior UX Researcher",     stage: "Wawancara",   appliedDate: "9 Jun 2025",  rating: 4.6, interviewSchedule: "12 Jul · 10:00 WIB", interviewDateTime: new Date(Date.UTC(2025, 6, 12, 10, 0) - 7 * 3600000), interviewTimezone: "WIB" },
     { id: "C19", name: "Putri Ayuningtyas", role: "Product Designer",    stage: "Wawancara",   appliedDate: "10 Jun 2025", rating: 4.2 },
     { id: "C15", name: "Galih Pratomo", role: "Product Designer",        stage: "Ditolak",     appliedDate: "2 Jun 2025",  rating: 3.5 },
   ],
@@ -3807,8 +3823,8 @@ function StarRatingIcon({ size = 16 }: { size?: number }) {
 
 // ── Kanban card (draggable, multi-selectable) ─────────────────────────────────
 
-function KanbanCard({ candidate, stage, onOpen, onScheduleClick, selected, isActive, selectionMode, onToggleSelect, selectedCount }: {
-  candidate: Candidate; stage: PipelineStage; onOpen: (c: Candidate) => void; onScheduleClick: (c: Candidate) => void;
+function KanbanCard({ candidate, stage, onOpen, onScheduleClick, onJoinMeeting, selected, isActive, selectionMode, onToggleSelect, selectedCount }: {
+  candidate: Candidate; stage: PipelineStage; onOpen: (c: Candidate) => void; onScheduleClick: (c: Candidate) => void; onJoinMeeting: (c: Candidate) => void;
   selected: boolean; isActive: boolean; selectionMode: boolean; onToggleSelect: () => void; selectedCount: number;
 }) {
   const isRejected = stage === "Ditolak";
@@ -3839,7 +3855,17 @@ function KanbanCard({ candidate, stage, onOpen, onScheduleClick, selected, isAct
       <div className={`flex flex-col gap-[5px] w-full ${stage === "Wawancara" ? "border-b border-[#e6e6e7] pb-2" : ""}`}>
         <div className="flex items-start justify-between w-full gap-2 pr-[22px]">
           <div className="flex flex-1 min-w-0 items-center gap-2.5">
-            <img src={imgCandidate} alt="" className={`size-5 rounded-full object-cover shrink-0 ${candidate.isInvited ? "border-2 border-[#0052ff]" : ""}`} />
+            <div className="relative shrink-0" style={{ width: 20, height: 20 }}>
+              <img src={imgCandidate} alt="" className="size-5 rounded-full object-cover" />
+              {candidate.isInvited && (
+                <img
+                  src={imgInvitedFrame}
+                  alt=""
+                  className="absolute pointer-events-none max-w-none"
+                  style={{ width: 26, height: 26, left: -3, top: -2.3 }}
+                />
+              )}
+            </div>
             <p className={`text-[14px] font-semibold truncate ${isRejected ? "text-[#777980]" : "text-[#0f172a]"}`} style={{ fontFamily: "DM Sans, sans-serif" }}>{candidate.name}</p>
           </div>
           <WhatsAppIcon />
@@ -3856,9 +3882,22 @@ function KanbanCard({ candidate, stage, onOpen, onScheduleClick, selected, isAct
       </div>
       {stage === "Wawancara" && (
         candidate.interviewSchedule ? (
-          <div className="flex items-center gap-1.5 bg-[#f0f9ff] rounded-[4px] px-2 py-1 w-full">
-            <Video size={16} className="text-[#0284c7] shrink-0" />
-            <span className="text-[11px] font-semibold text-[#0284c7] truncate" style={{ fontFamily: "DM Sans, sans-serif" }}>{candidate.interviewSchedule}</span>
+          <div className="flex items-center gap-1 bg-[#f0f9ff] rounded-[4px] pl-2 pr-1 py-1 w-full">
+            <button
+              onClick={(e) => { e.stopPropagation(); onJoinMeeting(candidate); }}
+              title="Buka Google Meet"
+              className="flex items-center gap-1.5 flex-1 min-w-0 text-left hover:opacity-75 transition-opacity"
+            >
+              <Video size={16} className="text-[#0284c7] shrink-0" />
+              <span className="text-[11px] font-semibold text-[#0284c7] truncate" style={{ fontFamily: "DM Sans, sans-serif" }}>{candidate.interviewSchedule}</span>
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onScheduleClick(candidate); }}
+              title="Ubah jadwal"
+              className="shrink-0 p-1 rounded hover:bg-[#dbeefe] transition-colors"
+            >
+              <Pencil size={11} className="text-[#0284c7]" />
+            </button>
           </div>
         ) : (
           <button
@@ -3870,21 +3909,19 @@ function KanbanCard({ candidate, stage, onOpen, onScheduleClick, selected, isAct
           </button>
         )
       )}
-      <p className="text-[10px] text-[#94a3b8] text-center w-full" style={{ fontFamily: "DM Sans, sans-serif" }}>
-        Created by {candidate.createdBy ?? DEFAULT_CREATED_BY}
-      </p>
     </div>
   );
 }
 
 // ── Kanban column (drop target) ───────────────────────────────────────────────
 
-function KanbanColumn({ stage, candidates, onDropRequest, onOpenCandidate, onScheduleClick, selectedIds, selectionMode, onToggleSelect, activeCandidateId }: {
+function KanbanColumn({ stage, candidates, onDropRequest, onOpenCandidate, onScheduleClick, onJoinMeeting, selectedIds, selectionMode, onToggleSelect, activeCandidateId }: {
   stage: PipelineStage;
   candidates: Candidate[];
   onDropRequest: (candidateId: string, from: PipelineStage, to: PipelineStage) => void;
   onOpenCandidate: (c: Candidate) => void;
   onScheduleClick: (c: Candidate) => void;
+  onJoinMeeting: (c: Candidate) => void;
   selectedIds: Set<string>;
   selectionMode: boolean;
   onToggleSelect: (id: string) => void;
@@ -3921,6 +3958,7 @@ function KanbanColumn({ stage, candidates, onDropRequest, onOpenCandidate, onSch
             stage={stage}
             onOpen={onOpenCandidate}
             onScheduleClick={onScheduleClick}
+            onJoinMeeting={onJoinMeeting}
             selected={selectedIds.has(c.id)}
             isActive={activeCandidateId === c.id}
             selectionMode={selectionMode}
@@ -4116,29 +4154,160 @@ function Toast({ title, subtitle, onDismiss }: { title: string; subtitle?: strin
   );
 }
 
+// ── Status toast (success/error pill) ─────────────────────────────────────────
+
+interface StatusToastItem { id: number; variant: "success" | "error"; message: string }
+
+function StatusToast({ variant, message, onDismiss }: { variant: "success" | "error"; message: string; onDismiss: () => void }) {
+  const isSuccess = variant === "success";
+  const color = isSuccess ? "#33893c" : "#f83a1e";
+  const bg = isSuccess ? "#fafffb" : "#fff5f5";
+  return (
+    <div
+      className="flex gap-3 items-center px-4 py-3 rounded-xl border whitespace-nowrap shadow-[0px_8px_12px_rgba(0,0,0,0.08)]"
+      style={{ backgroundColor: bg, borderColor: color }}
+    >
+      <div className="rounded-xl size-6 flex items-center justify-center shrink-0" style={{ backgroundColor: color }}>
+        {isSuccess ? (
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11.6662 3.5L5.25017 9.9162L2.3338 6.99975" stroke="white" strokeLinecap="round" strokeWidth="2" /></svg>
+        ) : (
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M10.5 3.5L3.5 10.5M3.5 3.5L10.5 10.5" stroke="white" strokeLinecap="round" strokeWidth="2" /></svg>
+        )}
+      </div>
+      <p className="text-[14px] font-semibold" style={{ color, fontFamily: "DM Sans, sans-serif" }}>{message}</p>
+      <button onClick={onDismiss} className="bg-white rounded-xl size-6 flex items-center justify-center border shrink-0" style={{ borderColor: color }}>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M10.5 3.5L3.5 10.5M3.5 3.5L10.5 10.5" stroke={color} strokeLinecap="round" strokeWidth="2" /></svg>
+      </button>
+    </div>
+  );
+}
+
+function StatusToastStack({ toasts, onDismiss }: { toasts: StatusToastItem[]; onDismiss: (id: number) => void }) {
+  if (toasts.length === 0) return null;
+  return (
+    <div className="fixed top-6 left-1/2 z-50 flex flex-col gap-2 items-center" style={{ transform: "translateX(-50%)" }}>
+      {toasts.map(t => (
+        <StatusToast key={t.id} variant={t.variant} message={t.message} onDismiss={() => onDismiss(t.id)} />
+      ))}
+    </div>
+  );
+}
+
 // ── Schedule interview modal (EMP-07) ─────────────────────────────────────────
 
 const INTERVIEW_MAX_DURATION_MIN = 90;
 const INTERVIEW_DEFAULT_DURATION_MIN = 30;
 const INTERVIEW_NOTE_MAX_LEN = 500;
 
-function ScheduleInterviewModal({ candidateName, onCancel, onConfirm }: {
+const TIMEZONE_OPTIONS = [
+  { value: "WIB", label: "WIB (GMT+7)", offset: 7 },
+  { value: "WITA", label: "WITA (GMT+8)", offset: 8 },
+  { value: "WIT", label: "WIT (GMT+9)", offset: 9 },
+  { value: "SGT", label: "Singapore (GMT+8)", offset: 8 },
+  { value: "LONDON", label: "London (GMT+0)", offset: 0 },
+  { value: "NY", label: "New York (GMT-4)", offset: -4 },
+];
+const DEFAULT_TIMEZONE = "WIB";
+
+// Converts a stored absolute instant back into the "yyyy-MM-ddTHH:mm" wall-clock string it was originally entered as, for a given zone.
+function toWallClockString(date: Date, tzValue: string): string {
+  const tz = TIMEZONE_OPTIONS.find(t => t.value === tzValue) ?? TIMEZONE_OPTIONS[0];
+  const shifted = new Date(date.getTime() + tz.offset * 60 * 60 * 1000);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${shifted.getUTCFullYear()}-${pad(shifted.getUTCMonth() + 1)}-${pad(shifted.getUTCDate())}T${pad(shifted.getUTCHours())}:${pad(shifted.getUTCMinutes())}`;
+}
+
+function ScheduleInterviewModal({ candidateName, initial, initialMode = "edit", onCancel, onConfirm, onCancelSchedule }: {
   candidateName: string;
+  initial?: { dateTime: Date; timezone: string; durationMinutes: number; note: string } | null;
+  initialMode?: "edit" | "confirmCancel";
   onCancel: () => void;
-  onConfirm: (data: { dateTime: Date; durationMinutes: number; note: string }) => void;
+  onConfirm: (data: { dateTime: Date; displayDate: Date; durationMinutes: number; note: string; timezone: string }) => void;
+  onCancelSchedule?: (note: string) => void;
 }) {
+  const isReschedule = !!initial;
+  const [mode, setMode] = useState<"edit" | "confirmCancel">(initialMode);
   const nowLocal = format(new Date(), "yyyy-MM-dd'T'HH:mm");
-  const [dateTime, setDateTime] = useState("");
-  const [duration, setDuration] = useState(INTERVIEW_DEFAULT_DURATION_MIN);
-  const [note, setNote] = useState("");
+  const [dateTime, setDateTime] = useState(() => initial ? toWallClockString(initial.dateTime, initial.timezone) : "");
+  const [duration, setDuration] = useState(initial?.durationMinutes ?? INTERVIEW_DEFAULT_DURATION_MIN);
+  const [note, setNote] = useState(initial?.note ?? "");
+  const [cancelNote, setCancelNote] = useState("");
   const [error, setError] = useState("");
+  const [timezone, setTimezone] = useState(initial?.timezone ?? DEFAULT_TIMEZONE);
+  const [tzOpen, setTzOpen] = useState(false);
+  const tzRef = useRef<HTMLDivElement>(null);
+  const selectedTz = TIMEZONE_OPTIONS.find(t => t.value === timezone)!;
+
+  useEffect(() => {
+    if (!tzOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (tzRef.current && !tzRef.current.contains(e.target as Node)) setTzOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [tzOpen]);
 
   const handleSubmit = () => {
     if (!dateTime) { setError("Tanggal & waktu wajib diisi."); return; }
-    const parsed = new Date(dateTime);
+    // Interpret the entered wall-clock time in the selected timezone's offset, not the browser's local zone.
+    const [datePart, timePart] = dateTime.split("T");
+    const [y, m, d] = datePart.split("-").map(Number);
+    const [hh, mm] = timePart.split(":").map(Number);
+    const utcMillis = Date.UTC(y, m - 1, d, hh, mm) - selectedTz.offset * 60 * 60 * 1000;
+    const parsed = new Date(utcMillis);
     if (isBefore(parsed, new Date())) { setError("Waktu interview harus sekarang atau setelahnya."); return; }
-    onConfirm({ dateTime: parsed, durationMinutes: duration, note: note.trim() });
+    // displayDate preserves the exact wall-clock digits the user typed (for labels), independent of the viewer's own local timezone.
+    const displayDate = new Date(y, m - 1, d, hh, mm);
+    onConfirm({ dateTime: parsed, displayDate, durationMinutes: duration, note: note.trim(), timezone: selectedTz.value });
   };
+
+  if (mode === "confirmCancel") {
+    return (
+      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-6" onClick={onCancel}>
+        <div className="bg-white rounded-2xl border border-[#e6e6e7] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1),0px_2px_4px_-1px_rgba(0,0,0,0.06)] p-6 flex flex-col gap-5 w-full max-w-[440px]"
+          onClick={e => e.stopPropagation()}>
+          <div className="flex items-center justify-between w-full gap-2">
+            <div>
+              <p className="text-[18px] font-bold text-[#0f172a]" style={{ fontFamily: "DM Sans, sans-serif" }}>Batalkan Jadwal Interview</p>
+              <p className="text-[13px] text-[#64748b]" style={{ fontFamily: "Inter, sans-serif" }}>
+                Kandidat: <span className="font-semibold text-[#0f172a]" style={{ fontFamily: "DM Sans, sans-serif" }}>{candidateName}</span>
+              </p>
+            </div>
+            <button onClick={onCancel} className="bg-[#f3f4f6] rounded-full p-1 flex items-center justify-center text-[#606268] hover:text-[#383b46] transition-colors shrink-0">
+              <X size={16} />
+            </button>
+          </div>
+
+          <p className="text-[13px] text-[#4c4f59]" style={{ fontFamily: "Inter, sans-serif" }}>
+            Jadwal interview yang sudah ditetapkan akan dibatalkan dan kandidat akan diberi tahu.
+          </p>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[12px] font-semibold text-[#4c4f59]" style={{ fontFamily: "DM Sans, sans-serif" }}>Pesan pembatalan (opsional)</label>
+            <textarea
+              value={cancelNote}
+              maxLength={INTERVIEW_NOTE_MAX_LEN}
+              onChange={e => setCancelNote(e.target.value)}
+              placeholder="Contoh: Mohon maaf, posisi ini untuk sementara ditunda..."
+              rows={3}
+              className="border border-[#c5c6c9] rounded-xl px-3 py-2 text-[13px] text-[#4c4f59] placeholder-[#c5c6c9] outline-none resize-none"
+              style={{ fontFamily: "DM Sans, sans-serif" }}
+            />
+            <p className="text-[11px] text-[#94a3b8] text-right" style={{ fontFamily: "Inter, sans-serif" }}>{cancelNote.length}/{INTERVIEW_NOTE_MAX_LEN}</p>
+          </div>
+
+          <div className="flex items-center justify-end gap-3">
+            <button onClick={() => setMode("edit")}
+              className="border-[1.5px] border-[#c5c6c9] rounded-full px-5 py-2 text-[14px] font-bold text-[#4c4f59] hover:bg-gray-50 transition-colors"
+              style={{ fontFamily: "DM Sans, sans-serif" }}>Kembali</button>
+            <button onClick={() => onCancelSchedule?.(cancelNote.trim())}
+              className="bg-[#f83a1e] rounded-full px-4 py-2 text-[14px] font-bold text-white hover:bg-[#d92e15] transition-colors"
+              style={{ fontFamily: "DM Sans, sans-serif" }}>Ya, Batalkan Jadwal</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-6" onClick={onCancel}>
@@ -4146,7 +4315,7 @@ function ScheduleInterviewModal({ candidateName, onCancel, onConfirm }: {
         onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between w-full gap-2">
           <div>
-            <p className="text-[18px] font-bold text-[#0f172a]" style={{ fontFamily: "DM Sans, sans-serif" }}>Jadwalkan Interview</p>
+            <p className="text-[18px] font-bold text-[#0f172a]" style={{ fontFamily: "DM Sans, sans-serif" }}>{isReschedule ? "Ubah Jadwal Interview" : "Jadwalkan Interview"}</p>
             <p className="text-[13px] text-[#64748b]" style={{ fontFamily: "Inter, sans-serif" }}>
               Kandidat: <span className="font-semibold text-[#0f172a]" style={{ fontFamily: "DM Sans, sans-serif" }}>{candidateName}</span>
             </p>
@@ -4161,18 +4330,45 @@ function ScheduleInterviewModal({ candidateName, onCancel, onConfirm }: {
             <label className="text-[12px] font-semibold text-[#4c4f59] flex items-center gap-1" style={{ fontFamily: "DM Sans, sans-serif" }}>
               Tanggal &amp; waktu <span className="text-[#f83a1e]">*</span>
             </label>
-            <div className="flex items-center gap-2 border border-[#c5c6c9] rounded-xl h-10 px-3">
-              <Calendar size={14} className="text-[#606268] shrink-0" />
-              <input
-                type="datetime-local"
-                value={dateTime}
-                min={nowLocal}
-                onChange={e => { setDateTime(e.target.value); setError(""); }}
-                className="flex-1 min-w-0 text-[13px] text-[#4c4f59] outline-none bg-transparent"
-                style={{ fontFamily: "DM Sans, sans-serif" }}
-              />
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 border border-[#c5c6c9] rounded-xl h-10 px-3 flex-1 min-w-0">
+                <Calendar size={14} className="text-[#606268] shrink-0" />
+                <input
+                  type="datetime-local"
+                  value={dateTime}
+                  min={nowLocal}
+                  onChange={e => { setDateTime(e.target.value); setError(""); }}
+                  className="flex-1 min-w-0 text-[13px] text-[#4c4f59] outline-none bg-transparent"
+                  style={{ fontFamily: "DM Sans, sans-serif" }}
+                />
+              </div>
+              <div ref={tzRef} className="relative shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setTzOpen(v => !v)}
+                  className={`flex items-center gap-1.5 border rounded-xl h-10 px-3 text-[13px] font-semibold transition-colors ${tzOpen ? "border-[#0052ff] text-[#0052ff]" : "border-[#c5c6c9] text-[#4c4f59]"}`}
+                  style={{ fontFamily: "DM Sans, sans-serif" }}
+                >
+                  {selectedTz.value}
+                  <ChevronDown size={12} className={`transition-transform ${tzOpen ? "rotate-180 text-[#0052ff]" : "text-[#606268]"}`} />
+                </button>
+                {tzOpen && (
+                  <div className="absolute top-[calc(100%+4px)] right-0 bg-white border border-[#e6e6e7] rounded-xl shadow-lg z-10 overflow-hidden w-[180px]">
+                    {TIMEZONE_OPTIONS.map(tz => (
+                      <div
+                        key={tz.value}
+                        onClick={() => { setTimezone(tz.value); setTzOpen(false); }}
+                        className={`px-3 py-2 text-[12px] cursor-pointer hover:bg-[#f3f4f6] transition-colors ${tz.value === timezone ? "text-[#0052ff] font-semibold bg-[#ebf2ff]" : "text-[#383b46]"}`}
+                        style={{ fontFamily: "DM Sans, sans-serif" }}
+                      >
+                        {tz.label}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-            <p className="text-[11px] text-[#94a3b8]" style={{ fontFamily: "Inter, sans-serif" }}>Waktu interview harus sekarang atau setelahnya. Akan tersinkron ke Google Calendar.</p>
+            <p className="text-[11px] text-[#94a3b8]" style={{ fontFamily: "Inter, sans-serif" }}>Waktu interview harus sekarang atau setelahnya ({selectedTz.label}). Akan tersinkron ke Google Calendar.</p>
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -4190,12 +4386,12 @@ function ScheduleInterviewModal({ candidateName, onCancel, onConfirm }: {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[12px] font-semibold text-[#4c4f59]" style={{ fontFamily: "DM Sans, sans-serif" }}>Catatan undangan</label>
+            <label className="text-[12px] font-semibold text-[#4c4f59]" style={{ fontFamily: "DM Sans, sans-serif" }}>{isReschedule ? "Pesan untuk kandidat (opsional)" : "Catatan undangan"}</label>
             <textarea
               value={note}
               maxLength={INTERVIEW_NOTE_MAX_LEN}
               onChange={e => setNote(e.target.value)}
-              placeholder="Contoh: siapkan portofolio terbaru..."
+              placeholder={isReschedule ? "Contoh: Mohon maaf, jadwal kami ubah karena..." : "Contoh: siapkan portofolio terbaru..."}
               rows={3}
               className="border border-[#c5c6c9] rounded-xl px-3 py-2 text-[13px] text-[#4c4f59] placeholder-[#c5c6c9] outline-none resize-none"
               style={{ fontFamily: "DM Sans, sans-serif" }}
@@ -4206,13 +4402,20 @@ function ScheduleInterviewModal({ candidateName, onCancel, onConfirm }: {
           {error && <p className="text-[12px] text-[#f83a1e]" style={{ fontFamily: "Inter, sans-serif" }}>{error}</p>}
         </div>
 
-        <div className="flex items-center justify-end gap-3">
-          <button onClick={onCancel}
-            className="border-[1.5px] border-[#c5c6c9] rounded-full px-5 py-2 text-[14px] font-bold text-[#4c4f59] hover:bg-gray-50 transition-colors"
-            style={{ fontFamily: "DM Sans, sans-serif" }}>Batal</button>
-          <button onClick={handleSubmit}
-            className="bg-[#0052ff] rounded-full px-4 py-2 text-[14px] font-bold text-white hover:bg-[#0041cc] transition-colors"
-            style={{ fontFamily: "DM Sans, sans-serif" }}>Jadwalkan Interview</button>
+        <div className={`flex items-center gap-3 ${isReschedule ? "justify-between" : "justify-end"}`}>
+          {isReschedule && (
+            <button onClick={() => setMode("confirmCancel")}
+              className="text-[13px] font-bold text-[#f83a1e] hover:underline"
+              style={{ fontFamily: "DM Sans, sans-serif" }}>Batalkan Jadwal</button>
+          )}
+          <div className="flex items-center gap-3">
+            <button onClick={onCancel}
+              className="border-[1.5px] border-[#c5c6c9] rounded-full px-5 py-2 text-[14px] font-bold text-[#4c4f59] hover:bg-gray-50 transition-colors"
+              style={{ fontFamily: "DM Sans, sans-serif" }}>Batal</button>
+            <button onClick={handleSubmit}
+              className="bg-[#0052ff] rounded-full px-4 py-2 text-[14px] font-bold text-white hover:bg-[#0041cc] transition-colors"
+              style={{ fontFamily: "DM Sans, sans-serif" }}>{isReschedule ? "Update Jadwal" : "Jadwalkan Interview"}</button>
+          </div>
         </div>
       </div>
     </div>
@@ -4221,8 +4424,8 @@ function ScheduleInterviewModal({ candidateName, onCancel, onConfirm }: {
 
 // ── Candidate Profile Modal ──────────────────────────────────────────────────
 
-function CandidateProfileModal({ candidate, onClose, onScheduleClick, onStageChangeRequest }: {
-  candidate: Candidate; onClose: () => void; onScheduleClick: (c: Candidate) => void;
+function CandidateProfileModal({ candidate, onClose, onScheduleClick, onCancelClick, onStageChangeRequest }: {
+  candidate: Candidate; onClose: () => void; onScheduleClick: (c: Candidate) => void; onCancelClick: (c: Candidate) => void;
   onStageChangeRequest: (candidate: Candidate, newStage: PipelineStage) => void;
 }) {
   const [tab, setTab] = useState<"detail" | "activity">("detail");
@@ -4232,7 +4435,18 @@ function CandidateProfileModal({ candidate, onClose, onScheduleClick, onStageCha
   const [noteInput, setNoteInput] = useState("");
   const [joiningMeeting, setJoiningMeeting] = useState(false);
   const [stageDropdownOpen, setStageDropdownOpen] = useState(false);
+  const [scheduleMenuOpen, setScheduleMenuOpen] = useState(false);
+  const scheduleMenuRef = useRef<HTMLDivElement>(null);
   const currentStageIndex = PIPELINE_STAGES.indexOf(candidate.stage);
+
+  useEffect(() => {
+    if (!scheduleMenuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (scheduleMenuRef.current && !scheduleMenuRef.current.contains(e.target as Node)) setScheduleMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [scheduleMenuOpen]);
 
   const handleSaveNote = () => {
     if (!noteInput.trim()) return;
@@ -4331,10 +4545,37 @@ function CandidateProfileModal({ candidate, onClose, onScheduleClick, onStageCha
             <div className="flex flex-col gap-3 w-[220px] shrink-0">
               {candidate.stage === "Wawancara" && (
                 candidate.interviewSchedule ? (
-                  <button onClick={handleJoinMeeting}
-                    className="bg-[#0052ff] h-10 rounded-full flex items-center justify-center gap-2 text-white font-semibold text-[14px] hover:bg-[#0041cc] transition-colors w-full" style={{ fontFamily: "Inter, sans-serif" }}>
-                    <Video size={16} /> Join Meeting
-                  </button>
+                  <div ref={scheduleMenuRef} className="relative flex items-center gap-2 w-full">
+                    <button onClick={handleJoinMeeting}
+                      className="bg-[#0052ff] h-10 rounded-full flex items-center justify-center gap-2 text-white font-semibold text-[14px] hover:bg-[#0041cc] transition-colors flex-1 min-w-0" style={{ fontFamily: "Inter, sans-serif" }}>
+                      <Video size={16} /> Join Meeting
+                    </button>
+                    <button
+                      onClick={() => setScheduleMenuOpen(v => !v)}
+                      className={`h-10 w-10 rounded-full border flex items-center justify-center shrink-0 transition-colors ${scheduleMenuOpen ? "border-[#0052ff] text-[#0052ff] bg-[#ebf2ff]" : "border-[#c5c6c9] text-[#4c4f59] hover:bg-gray-50"}`}
+                    >
+                      <MoreVertical size={16} />
+                    </button>
+                    {scheduleMenuOpen && (
+                      <div className="absolute z-20 top-[calc(100%+4px)] right-0 bg-white border border-[#e6e6e7] rounded-xl w-[180px] overflow-hidden shadow-lg">
+                        <button
+                          onClick={() => { setScheduleMenuOpen(false); onClose(); onScheduleClick(candidate); }}
+                          className="w-full text-left px-3 py-2.5 flex items-center gap-2 text-[13px] text-[#4c4f59] hover:bg-gray-50 transition-colors"
+                          style={{ fontFamily: "DM Sans, sans-serif" }}
+                        >
+                          <Pencil size={14} className="text-[#606268]" /> Ubah Jadwal
+                        </button>
+                        <div className="h-px bg-[#e6e6e7]" />
+                        <button
+                          onClick={() => { setScheduleMenuOpen(false); onClose(); onCancelClick(candidate); }}
+                          className="w-full text-left px-3 py-2.5 flex items-center gap-2 text-[13px] text-[#f83a1e] hover:bg-[#fef2f2] transition-colors"
+                          style={{ fontFamily: "DM Sans, sans-serif" }}
+                        >
+                          <X size={14} /> Batalkan Jadwal
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <button onClick={() => { onClose(); onScheduleClick(candidate); }}
                     className="bg-[#0052ff] h-10 rounded-full flex items-center justify-center gap-2 text-white font-semibold text-[14px] hover:bg-[#0041cc] transition-colors w-full" style={{ fontFamily: "Inter, sans-serif" }}>
@@ -4962,7 +5203,24 @@ function PipelineDetailContent() {
 
   // Schedule interview (EMP-07)
   const [schedulingCandidate, setSchedulingCandidate] = useState<Candidate | null>(null);
-  const [scheduleToast, setScheduleToast] = useState<string | null>(null);
+  const [scheduleModalMode, setScheduleModalMode] = useState<"edit" | "confirmCancel">("edit");
+  const [actionToasts, setActionToasts] = useState<StatusToastItem[]>([]);
+  const [joiningCandidateName, setJoiningCandidateName] = useState<string | null>(null);
+
+  const pushActionToast = (variant: "success" | "error", message: string) => {
+    const id = Date.now() + Math.random();
+    setActionToasts(prev => [...prev, { id, variant, message }]);
+    setTimeout(() => setActionToasts(prev => prev.filter(t => t.id !== id)), 4000);
+  };
+  const dismissActionToast = (id: number) => setActionToasts(prev => prev.filter(t => t.id !== id));
+
+  const openScheduleModal = (c: Candidate) => { setSchedulingCandidate(c); setScheduleModalMode("edit"); };
+  const openCancelModal = (c: Candidate) => { setSchedulingCandidate(c); setScheduleModalMode("confirmCancel"); };
+
+  const handleJoinMeetingFromCard = (c: Candidate) => {
+    setJoiningCandidateName(c.name);
+    setTimeout(() => setJoiningCandidateName(null), 4000);
+  };
 
   if (!job) return (
     <div className="flex-1 flex items-center justify-center bg-[#f9f9f9]">
@@ -5033,15 +5291,24 @@ function PipelineDetailContent() {
     setTimeout(() => setDownloadCount(null), 4000);
   };
 
-  const handleScheduleConfirm = ({ dateTime, durationMinutes, note }: { dateTime: Date; durationMinutes: number; note: string }) => {
+  const handleScheduleConfirm = ({ dateTime, displayDate, durationMinutes, note, timezone }: { dateTime: Date; displayDate: Date; durationMinutes: number; note: string; timezone: string }) => {
     if (!schedulingCandidate) return;
-    const label = format(dateTime, "d MMM · HH:mm");
+    const label = `${format(displayDate, "d MMM · HH:mm")} ${timezone}`;
+    const wasScheduled = !!schedulingCandidate.interviewSchedule;
     setCandidates(prev => prev.map(c => c.id === schedulingCandidate.id
-      ? { ...c, interviewSchedule: label, interviewDuration: durationMinutes, interviewNote: note }
+      ? { ...c, interviewSchedule: label, interviewDuration: durationMinutes, interviewNote: note, interviewDateTime: dateTime, interviewTimezone: timezone }
       : c));
-    setScheduleToast(schedulingCandidate.name);
+    pushActionToast("success", wasScheduled ? "Jadwal interview berhasil diperbarui" : "Interview berhasil dijadwalkan");
     setSchedulingCandidate(null);
-    setTimeout(() => setScheduleToast(null), 4000);
+  };
+
+  const handleCancelSchedule = (cancelNote: string) => {
+    if (!schedulingCandidate) return;
+    setCandidates(prev => prev.map(c => c.id === schedulingCandidate.id
+      ? { ...c, interviewSchedule: undefined, interviewDuration: undefined, interviewNote: cancelNote || undefined, interviewDateTime: undefined, interviewTimezone: undefined }
+      : c));
+    pushActionToast("success", "Jadwal interview berhasil dihapus");
+    setSchedulingCandidate(null);
   };
 
   return (
@@ -5080,6 +5347,8 @@ function PipelineDetailContent() {
                   <Briefcase size={14} className="text-[#475569]" />
                   <span className="text-[12px] text-[#475569]" style={{ fontFamily: "Inter, sans-serif" }}>{job.tipe}</span>
                 </div>
+                <span className="text-[#e2e8f0]">|</span>
+                <span className="text-[12px] text-[#475569]" style={{ fontFamily: "Inter, sans-serif" }}>Created by: {job.createdBy ?? DEFAULT_CREATED_BY}</span>
               </div>
             </div>
             <div className="flex items-center gap-5 shrink-0">
@@ -5119,7 +5388,8 @@ function PipelineDetailContent() {
                     candidates={filteredCandidates.filter(c => c.stage === stage)}
                     onDropRequest={handleDropRequest}
                     onOpenCandidate={setSelectedCandidate}
-                    onScheduleClick={setSchedulingCandidate}
+                    onScheduleClick={openScheduleModal}
+                    onJoinMeeting={handleJoinMeetingFromCard}
                     selectedIds={selectedIds}
                     selectionMode={selectedIds.size > 0}
                     onToggleSelect={toggleSelect}
@@ -5145,7 +5415,8 @@ function PipelineDetailContent() {
         <CandidateProfileModal
           candidate={selectedCandidate}
           onClose={() => setSelectedCandidate(null)}
-          onScheduleClick={setSchedulingCandidate}
+          onScheduleClick={openScheduleModal}
+          onCancelClick={openCancelModal}
           onStageChangeRequest={(c, newStage) => {
             setSelectedCandidate(null);
             setPendingMove({ candidateId: c.id, from: c.stage, to: newStage });
@@ -5192,127 +5463,85 @@ function PipelineDetailContent() {
       {schedulingCandidate && (
         <ScheduleInterviewModal
           candidateName={schedulingCandidate.name}
+          initial={schedulingCandidate.interviewDateTime && schedulingCandidate.interviewTimezone ? {
+            dateTime: schedulingCandidate.interviewDateTime,
+            timezone: schedulingCandidate.interviewTimezone,
+            durationMinutes: schedulingCandidate.interviewDuration ?? INTERVIEW_DEFAULT_DURATION_MIN,
+            note: schedulingCandidate.interviewNote ?? "",
+          } : null}
+          initialMode={scheduleModalMode}
           onCancel={() => setSchedulingCandidate(null)}
           onConfirm={handleScheduleConfirm}
+          onCancelSchedule={handleCancelSchedule}
         />
       )}
-      {scheduleToast && (
+      {joiningCandidateName && (
         <Toast
-          title="Interview terjadwalkan"
-          subtitle={`Notifikasi terkirim ke ${scheduleToast}`}
-          onDismiss={() => setScheduleToast(null)}
+          title="Membuka ruang tunggu interview"
+          subtitle={`Menghubungkan ke sesi video dengan ${joiningCandidateName}...`}
+          onDismiss={() => setJoiningCandidateName(null)}
         />
       )}
+      <StatusToastStack toasts={actionToasts} onDismiss={dismissActionToast} />
     </div>
   );
 }
 
 // ── Analytics page (EMP-08) ───────────────────────────────────────────────────
 
-const ANALYTICS_METRIC_DEFS = [
-  { key: "pelamar", label: "Total Pelamar" },
-  { key: "conversion", label: "Conversion Rate" },
-  { key: "hiring", label: "Waktu Hiring" },
-] as const;
-type AnalyticsMetricKey = typeof ANALYTICS_METRIC_DEFS[number]["key"];
-
-function AnalyticsStatCard({ label, value }: { label: string; value: string }) {
+function AnalyticsStatCard({ label, value, sublabel, muted }: { label: string; value: string; sublabel: string; muted?: boolean }) {
   return (
     <div className="bg-white flex-1 min-w-0 rounded-2xl border border-[#e6e6e7] shadow-[0px_4px_6px_rgba(0,0,0,0.02)] p-6 flex flex-col gap-3">
-      <p className="text-[#777980] text-sm" style={{ fontFamily: "DM Sans, sans-serif" }}>{label}</p>
-      <p className="text-[#0052ff] text-[21px] font-bold leading-[26px]" style={{ fontFamily: "DM Sans, sans-serif" }}>{value}</p>
+      <p className="text-[#777980] text-sm whitespace-nowrap" style={{ fontFamily: "DM Sans, sans-serif" }}>{label}</p>
+      <p className={`text-[21px] font-bold leading-[26px] whitespace-nowrap ${muted ? "text-[#777980]" : "text-[#383b46]"}`} style={{ fontFamily: "DM Sans, sans-serif" }}>{value}</p>
+      <p className="text-[#777980] text-xs whitespace-nowrap" style={{ fontFamily: "DM Sans, sans-serif" }}>{sublabel}</p>
     </div>
   );
 }
 
-function toDateInputValue(d: Date) {
-  return d.toISOString().slice(0, 10);
+const ANALYTICS_TREND_LABELS: Record<"mingguan" | "bulanan", string[]> = {
+  mingguan: ["Minggu 1", "Minggu 2", "Minggu 3", "Minggu 4"],
+  bulanan: ["Bulan 1", "Bulan 2", "Bulan 3", "Bulan 4"],
+};
+
+function AnalyticsTrendEmptyChart({ view }: { view: "mingguan" | "bulanan" }) {
+  return (
+    <div className="h-[220px] relative w-full">
+      <div className="absolute inset-0 flex gap-5 opacity-30">
+        <div className="flex flex-col justify-between h-40 w-10 text-right text-[12px] text-[#777980] shrink-0" style={{ fontFamily: "DM Sans, sans-serif" }}>
+          {["200", "150", "100", "50", "0"].map(v => <span key={v}>{v}</span>)}
+        </div>
+        <div className="flex-1 min-w-0 flex flex-col h-full">
+          <div className="h-40 w-full flex flex-col justify-between">
+            {[0, 1, 2, 3, 4].map(i => <div key={i} className="h-px w-full bg-[#e6e6e7]" />)}
+          </div>
+          <div className="flex items-start justify-between pt-3 text-[12px] text-[#777980] w-full" style={{ fontFamily: "DM Sans, sans-serif" }}>
+            {ANALYTICS_TREND_LABELS[view].map(l => <span key={l}>{l}</span>)}
+          </div>
+        </div>
+      </div>
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 w-[300px] text-center">
+        <p className="text-[16px] font-bold text-[#c5c6c9]" style={{ fontFamily: "DM Sans, sans-serif" }}>Belum ada data</p>
+        <p className="text-[12px] text-[#c5c6c9]" style={{ fontFamily: "DM Sans, sans-serif" }}>Data akan muncul setelah ada pelamar yang masuk</p>
+      </div>
+    </div>
+  );
 }
 
+const ANALYTICS_DATE_RANGE_OPTIONS = ["7 hari terakhir", "30 hari terakhir", "90 hari terakhir"];
+
 function AnalyticsContent() {
-  const today = new Date();
-  const defaultStart = new Date(today);
-  defaultStart.setDate(today.getDate() - 30);
-
-  const [startDate, setStartDate] = useState(toDateInputValue(defaultStart));
-  const [endDate, setEndDate] = useState(toDateInputValue(today));
-  const [selectedJobIds, setSelectedJobIds] = useState<string[]>(PIPELINE_JOBS.map(j => j.id));
+  const [dateRangeOpen, setDateRangeOpen] = useState(false);
+  const [selectedRange, setSelectedRange] = useState("30 hari terakhir");
   const [jobDropdownOpen, setJobDropdownOpen] = useState(false);
-  const [activeMetrics, setActiveMetrics] = useState<Set<AnalyticsMetricKey>>(new Set(["pelamar", "conversion", "hiring"]));
+  const [selectedJobLabel, setSelectedJobLabel] = useState("Semua Lowongan");
   const [trendView, setTrendView] = useState<"mingguan" | "bulanan">("mingguan");
+  const [search, setSearch] = useState("");
 
-  const toggleJob = (id: string) => {
-    setSelectedJobIds(prev => prev.includes(id) ? prev.filter(j => j !== id) : [...prev, id]);
-  };
-  const toggleMetric = (key: AnalyticsMetricKey) => {
-    setActiveMetrics(prev => {
-      const next = new Set(prev);
-      next.has(key) ? next.delete(key) : next.add(key);
-      return next;
-    });
-  };
-
-  const selectedJobs = PIPELINE_JOBS.filter(j => selectedJobIds.includes(j.id));
-  const totalPelamar = selectedJobs.reduce((sum, j) => sum + j.counts.Melamar, 0);
-  const totalDiterima = selectedJobs.reduce((sum, j) => sum + j.counts.Diterima, 0);
-  const conversionRate = totalPelamar > 0 ? (totalDiterima / totalPelamar) * 100 : 0;
-  const avgHiringDays = selectedJobs.length > 0 ? Math.round(18 + (selectedJobs.length - PIPELINE_JOBS.length) * 0.8) : 0;
-
-  const rangeDays = Math.max(1, Math.round((new Date(endDate).getTime() - new Date(startDate).getTime()) / 86400000));
-  const weekCount = Math.min(12, Math.max(1, Math.round(rangeDays / 7)));
-  const monthCount = Math.min(12, Math.max(1, Math.round(rangeDays / 30)));
-  const jobFactor = Math.max(1, selectedJobs.length);
-
-  const weeklyTrend = Array.from({ length: weekCount }, (_, i) => {
-    const weekStart = new Date(startDate);
-    weekStart.setDate(weekStart.getDate() + i * 7);
-    return {
-      label: format(weekStart, "d MMM"),
-      pelamar: Math.max(0, Math.round(10 + Math.sin(i * 0.9) * 6 + i * 1.2) * jobFactor),
-    };
-  });
-  const monthlyTrend = Array.from({ length: monthCount }, (_, i) => {
-    const monthDate = subMonths(new Date(endDate), monthCount - 1 - i);
-    return {
-      label: format(monthDate, "MMM yyyy"),
-      pelamar: Math.max(0, Math.round(40 + Math.sin(i * 0.7) * 15 + i * 4) * jobFactor),
-    };
-  });
-  const trendData = trendView === "mingguan" ? weeklyTrend : monthlyTrend;
-
-  const handleExportCsv = () => {
-    const lines: string[] = [];
-    lines.push("Analitik Rekrutmen");
-    lines.push(`Rentang Waktu,${startDate} s/d ${endDate}`);
-    lines.push(`Lowongan,"${selectedJobs.map(j => j.nama).join("; ")}"`);
-    lines.push("");
-    lines.push("Metrik,Nilai");
-    lines.push(`Total Pelamar,${totalPelamar}`);
-    lines.push(`Conversion Rate (%),${conversionRate.toFixed(1)}`);
-    lines.push(`Rata-rata Waktu Hiring (Hari),${avgHiringDays}`);
-    lines.push("");
-    lines.push("Lowongan,Pelamar,Diterima,Conversion Rate (%)");
-    selectedJobs.forEach(j => {
-      const rate = j.counts.Melamar > 0 ? (j.counts.Diterima / j.counts.Melamar) * 100 : 0;
-      lines.push(`${j.nama},${j.counts.Melamar},${j.counts.Diterima},${rate.toFixed(1)}`);
-    });
-    lines.push("");
-    lines.push(`${trendView === "mingguan" ? "Minggu" : "Bulan"},Jumlah Pelamar`);
-    trendData.forEach(t => lines.push(`${t.label},${t.pelamar}`));
-
-    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `analitik_${startDate}_${endDate}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+  const jobOptions = ["Semua Lowongan", ...PIPELINE_JOBS.map(j => j.nama)];
 
   return (
-    <div className="flex-1 min-w-0 h-full overflow-y-auto bg-[#f9f9f9]" onClick={() => setJobDropdownOpen(false)}>
+    <div className="flex-1 min-w-0 h-full overflow-y-auto bg-[#f9f9f9]" onClick={() => { setDateRangeOpen(false); setJobDropdownOpen(false); }}>
       {/* Top bar */}
       <div className="bg-white border-b border-[#e6e6e7] px-10 py-5 flex items-center justify-end shrink-0">
         <TopBarUserMenu />
@@ -5322,123 +5551,117 @@ function AnalyticsContent() {
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <p className="text-[28px] font-bold text-[#383b46]" style={{ fontFamily: "DM Sans, sans-serif" }}>Analitik</p>
-            <p className="text-sm text-[#64748b] mt-1" style={{ fontFamily: "DM Sans, sans-serif" }}>Insight performa rekrutmen perusahaan Anda</p>
-          </div>
-          <button
-            onClick={(e) => { e.stopPropagation(); handleExportCsv(); }}
-            className="h-11 px-5 rounded-full bg-[#0052ff] text-white font-bold text-[14px] flex items-center gap-2 hover:bg-[#0041cc] transition-colors"
-            style={{ fontFamily: "DM Sans, sans-serif" }}
-          >
-            <Download size={16} /> Export CSV
-          </button>
-        </div>
-
-        {/* Filter bar */}
-        <div className="bg-white rounded-2xl border border-[#e6e6e7] p-4 flex items-center gap-3 flex-wrap" onClick={e => e.stopPropagation()}>
-          <div className="flex items-center gap-2 border border-[#c5c6c9] rounded-xl h-10 px-3">
-            <Calendar size={14} className="text-[#606268] shrink-0" />
-            <input type="date" value={startDate} max={endDate} onChange={e => setStartDate(e.target.value)}
-              className="text-[13px] text-[#4c4f59] outline-none bg-transparent" style={{ fontFamily: "DM Sans, sans-serif" }} />
-            <span className="text-[#c5c6c9]">–</span>
-            <input type="date" value={endDate} min={startDate} onChange={e => setEndDate(e.target.value)}
-              className="text-[13px] text-[#4c4f59] outline-none bg-transparent" style={{ fontFamily: "DM Sans, sans-serif" }} />
+            <p className="text-sm text-[#64748b] mt-1" style={{ fontFamily: "DM Sans, sans-serif" }}>Evaluasi performa rekrutmen dari waktu ke waktu.</p>
           </div>
 
-          <div className="relative">
-            <button
-              onClick={(e) => { e.stopPropagation(); setJobDropdownOpen(v => !v); }}
-              className="h-10 px-4 rounded-xl border border-[#c5c6c9] bg-white flex items-center gap-2 hover:bg-gray-50 transition-colors"
-            >
-              <span className="text-[13px] text-[#4c4f59]" style={{ fontFamily: "DM Sans, sans-serif" }}>
-                {selectedJobIds.length === PIPELINE_JOBS.length ? "Semua Lowongan" : `${selectedJobIds.length} Lowongan dipilih`}
-              </span>
-              <ChevronDown size={14} className="text-[#606268]" />
-            </button>
-            {jobDropdownOpen && (
-              <div className="absolute z-20 top-[calc(100%+4px)] left-0 bg-white border border-[#e2e8f0] rounded-xl shadow-lg w-[240px] p-2 flex flex-col gap-0.5" onClick={e => e.stopPropagation()}>
-                {PIPELINE_JOBS.map(job => (
-                  <label key={job.id} className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 cursor-pointer text-[13px]" style={{ fontFamily: "DM Sans, sans-serif" }}>
-                    <input type="checkbox" checked={selectedJobIds.includes(job.id)} onChange={() => toggleJob(job.id)} className="accent-[#0052ff]" />
-                    {job.nama}
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            {ANALYTICS_METRIC_DEFS.map(m => (
-              <button key={m.key} onClick={(e) => { e.stopPropagation(); toggleMetric(m.key); }}
-                className={`px-3 py-2 rounded-full text-[12px] font-semibold border transition-colors ${activeMetrics.has(m.key) ? "bg-[#ebf2ff] border-[#0052ff] text-[#0052ff]" : "bg-white border-[#c5c6c9] text-[#4c4f59]"}`}
-                style={{ fontFamily: "DM Sans, sans-serif" }}>
-                {m.label}
+          <div className="flex items-center gap-3" onClick={e => e.stopPropagation()}>
+            <div className="relative">
+              <button
+                onClick={() => setDateRangeOpen(v => !v)}
+                className="h-10 px-4 rounded-full border border-[#e6e6e7] bg-white flex items-center gap-2 hover:bg-gray-50 transition-colors"
+              >
+                <Calendar size={16} className="text-[#4c4f59]" />
+                <span className="text-[14px] font-semibold text-[#4c4f59] whitespace-nowrap" style={{ fontFamily: "DM Sans, sans-serif" }}>{selectedRange}</span>
+                <ChevronDown size={16} className="text-[#606268]" />
               </button>
-            ))}
+              {dateRangeOpen && (
+                <div className="absolute z-20 top-[calc(100%+4px)] right-0 bg-white border border-[#e2e8f0] rounded-xl shadow-lg w-[180px] p-1.5 flex flex-col gap-0.5">
+                  {ANALYTICS_DATE_RANGE_OPTIONS.map(opt => (
+                    <button key={opt} onClick={() => { setSelectedRange(opt); setDateRangeOpen(false); }}
+                      className={`text-left px-3 py-2 rounded-lg text-[13px] hover:bg-gray-50 transition-colors ${selectedRange === opt ? "text-[#0052ff] font-semibold" : "text-[#4c4f59]"}`}
+                      style={{ fontFamily: "DM Sans, sans-serif" }}>
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="relative">
+              <button
+                onClick={() => setJobDropdownOpen(v => !v)}
+                className="h-10 px-4 rounded-full border border-[#e6e6e7] bg-white flex items-center gap-2 hover:bg-gray-50 transition-colors"
+              >
+                <span className="text-[14px] font-semibold text-[#4c4f59] whitespace-nowrap" style={{ fontFamily: "DM Sans, sans-serif" }}>{selectedJobLabel}</span>
+                <ChevronDown size={16} className="text-[#606268]" />
+              </button>
+              {jobDropdownOpen && (
+                <div className="absolute z-20 top-[calc(100%+4px)] right-0 bg-white border border-[#e2e8f0] rounded-xl shadow-lg w-[220px] p-1.5 flex flex-col gap-0.5 max-h-[280px] overflow-y-auto">
+                  {jobOptions.map(opt => (
+                    <button key={opt} onClick={() => { setSelectedJobLabel(opt); setJobDropdownOpen(false); }}
+                      className={`text-left px-3 py-2 rounded-lg text-[13px] hover:bg-gray-50 transition-colors ${selectedJobLabel === opt ? "text-[#0052ff] font-semibold" : "text-[#4c4f59]"}`}
+                      style={{ fontFamily: "DM Sans, sans-serif" }}>
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <button
+              disabled
+              className="h-10 px-4 rounded-full border-[1.5px] border-[#0052ff] bg-white flex items-center gap-2 opacity-40 cursor-not-allowed"
+            >
+              <Download size={16} className="text-[#0052ff]" />
+              <span className="text-[14px] font-semibold text-[#0052ff] whitespace-nowrap" style={{ fontFamily: "DM Sans, sans-serif" }}>Export CSV</span>
+            </button>
           </div>
         </div>
 
-        {/* KPI cards */}
+        {/* Stat cards */}
         <div className="flex gap-6 flex-wrap">
-          {activeMetrics.has("pelamar") && <AnalyticsStatCard label="Total Pelamar" value={totalPelamar.toLocaleString("id-ID")} />}
-          {activeMetrics.has("conversion") && <AnalyticsStatCard label="Conversion Rate" value={`${conversionRate.toFixed(1)}%`} />}
-          {activeMetrics.has("hiring") && <AnalyticsStatCard label="Rata-rata Waktu Hiring" value={`${avgHiringDays} Hari`} />}
+          <AnalyticsStatCard label="Total Pelamar" value="0" sublabel="dalam periode ini" />
+          <AnalyticsStatCard label="Tingkat Konversi Keseluruhan" value="-" sublabel="Saringan sampai Diterima" />
+          <AnalyticsStatCard label="Rata-rata Waktu Hiring" value="-" sublabel="Dari yang sudah diterima" />
+          <AnalyticsStatCard label="Lowongan Paling Efektif" value="-" sublabel="Conversion rate: -" muted />
         </div>
 
         {/* Trend chart */}
-        <div className="bg-white rounded-2xl border border-[#e6e6e7] shadow-[0px_4px_6px_rgba(0,0,0,0.02)] p-6 flex flex-col gap-4">
+        <div className="bg-white rounded-2xl border border-[#e6e6e7] shadow-[0px_4px_6px_rgba(0,0,0,0.02)] p-6 flex flex-col gap-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[#4c4f59] text-base font-bold" style={{ fontFamily: "DM Sans, sans-serif" }}>Tren Lamaran</p>
-              <p className="text-[#777980] text-sm" style={{ fontFamily: "DM Sans, sans-serif" }}>{startDate} s/d {endDate}</p>
+              <p className="text-[#4c4f59] text-base font-bold" style={{ fontFamily: "DM Sans, sans-serif" }}>Tren Pelamar</p>
+              <p className="text-[#777980] text-sm" style={{ fontFamily: "DM Sans, sans-serif" }}>Jumlah pelamar dari waktu ke waktu</p>
             </div>
-            <div className="flex items-center gap-1 bg-[#f1f5f9] rounded-full p-1">
+            <div className="flex items-center gap-1 bg-[#f3f4f6] rounded-lg p-[3px]">
               {(["mingguan", "bulanan"] as const).map(v => (
                 <button key={v} onClick={() => setTrendView(v)}
-                  className={`px-3 py-1.5 rounded-full text-[12px] font-semibold capitalize transition-colors ${trendView === v ? "bg-white text-[#0052ff] shadow-sm" : "text-[#64748b]"}`}
+                  className={`px-3 py-1.5 rounded-md text-[14px] font-semibold capitalize transition-colors ${trendView === v ? "bg-white text-[#0052ff]" : "text-[#777980]"}`}
                   style={{ fontFamily: "DM Sans, sans-serif" }}>
                   {v}
                 </button>
               ))}
             </div>
           </div>
-          <div style={{ width: "100%", height: 260 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trendData} margin={{ top: 8, right: 12, left: -12, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={{ stroke: "#e5e7eb" }} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e2e8f0" }} />
-                <Line type="monotone" dataKey="pelamar" name="Pelamar" stroke="#0052ff" strokeWidth={2.5} dot={{ r: 3, fill: "#0052ff" }} activeDot={{ r: 5 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+          <AnalyticsTrendEmptyChart view={trendView} />
         </div>
 
-        {/* Per-job conversion table */}
+        {/* Performa per Lowongan */}
         <div className="bg-white rounded-2xl border border-[#e6e6e7] shadow-[0px_4px_6px_rgba(0,0,0,0.02)] flex flex-col">
-          <div className="p-6 pb-4">
-            <p className="text-[#4c4f59] text-base font-bold" style={{ fontFamily: "DM Sans, sans-serif" }}>Conversion Rate per Lowongan</p>
-            <p className="text-[#777980] text-sm" style={{ fontFamily: "DM Sans, sans-serif" }}>Pelamar hingga diterima, per lowongan terpilih</p>
-          </div>
-          <div className="flex flex-col">
-            <div className="grid grid-cols-4 gap-4 px-6 py-2 border-y border-[#e5e7eb] bg-[#f9f9f9]">
-              {["Lowongan", "Pelamar", "Diterima", "Conversion Rate"].map(h => (
-                <span key={h} className="text-[11px] font-bold text-[#94a3b8] uppercase tracking-wide" style={{ fontFamily: "Inter, sans-serif" }}>{h}</span>
-              ))}
+          <div className="p-6 pb-4 flex items-center justify-between gap-4 flex-wrap">
+            <p className="text-[#383b46] text-base font-bold" style={{ fontFamily: "DM Sans, sans-serif" }}>Performa per Lowongan</p>
+            <div className="bg-white border border-[#c5c6c9] rounded-xl h-10 flex items-center gap-2 px-3 w-full max-w-[378px]">
+              <Search size={14} className="text-[#777980] shrink-0" />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cari Nama Posisi"
+                className="flex-1 min-w-0 text-[12px] text-[#4c4f59] placeholder-[#777980] outline-none bg-transparent"
+                style={{ fontFamily: "DM Sans, sans-serif" }} />
             </div>
-            {selectedJobs.length === 0 ? (
-              <div className="px-6 py-8 text-center text-[13px] text-[#94a3b8]" style={{ fontFamily: "DM Sans, sans-serif" }}>Pilih setidaknya satu lowongan.</div>
-            ) : selectedJobs.map(job => {
-              const rate = job.counts.Melamar > 0 ? (job.counts.Diterima / job.counts.Melamar) * 100 : 0;
-              return (
-                <div key={job.id} className="grid grid-cols-4 gap-4 px-6 py-3 border-b border-[#f1f5f9] last:border-b-0 items-center">
-                  <span className="text-[13px] font-semibold text-[#383b46]" style={{ fontFamily: "DM Sans, sans-serif" }}>{job.nama}</span>
-                  <span className="text-[13px] text-[#4c4f59]" style={{ fontFamily: "DM Sans, sans-serif" }}>{job.counts.Melamar}</span>
-                  <span className="text-[13px] text-[#4c4f59]" style={{ fontFamily: "DM Sans, sans-serif" }}>{job.counts.Diterima}</span>
-                  <span className="text-[13px] font-semibold text-[#0052ff]" style={{ fontFamily: "DM Sans, sans-serif" }}>{rate.toFixed(1)}%</span>
-                </div>
-              );
-            })}
+          </div>
+
+          <div className="grid grid-cols-[minmax(200px,1fr)_160px_150px_190px_150px] gap-4 px-6 py-3 border-y border-[#e6e6e7] bg-[#f9f9f9]">
+            {["NAMA POSISI", "JUMLAH PELAMAR", "TINGKAT KONVERSI", "RATA-RATA WAKTU HIRING", "STATUS LOWONGAN"].map(h => (
+              <span key={h} className="text-[12px] font-medium text-[#4c4f59]" style={{ fontFamily: "DM Sans, sans-serif" }}>{h}</span>
+            ))}
+          </div>
+
+          <div className="flex flex-col items-center justify-center gap-4 py-12 px-6">
+            <div className="bg-[#f3f4f6] rounded-full size-14 flex items-center justify-center">
+              <Folder size={24} className="text-[#9b9ca1]" />
+            </div>
+            <div className="flex flex-col items-center gap-1 text-center">
+              <p className="text-[15px] font-semibold text-[#4c4f59]" style={{ fontFamily: "DM Sans, sans-serif" }}>Belum ada data lowongan</p>
+              <p className="text-[13px] text-[#777980] w-[320px]" style={{ fontFamily: "DM Sans, sans-serif" }}>Daftar posisi aktif akan ditampilkan di sini beserta analisisnya.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -5448,10 +5671,22 @@ function AnalyticsContent() {
 
 // ── Profile / account settings (Jira-style settings shell) ───────────────────
 
-const SETTINGS_NAV = [
-  { path: "/profile",          label: "Profil Saya",       icon: User },
-  { path: "/profile/company",  label: "Profil Perusahaan", icon: Building2 },
-  { path: "/profile/settings", label: "Pengaturan",        icon: Settings },
+const SETTINGS_NAV_GROUPS = [
+  {
+    title: "USER",
+    items: [
+      { path: "/profile",              label: "Profil Saya",           icon: User },
+      { path: "/profile/notifications", label: "Preferensi Notifikasi", icon: Bell },
+    ],
+  },
+  {
+    title: "COMPANY",
+    items: [
+      { path: "/profile/company", label: "Profil Perusahaan",  icon: Building2 },
+      { path: "/profile/team",    label: "Team & Hak Akses",   icon: Users },
+      { path: "/profile/billing", label: "Billing & Langganan", icon: CreditCard },
+    ],
+  },
 ] as const;
 
 function SettingsSaveButton({ onClick, saved, label = "Simpan Perubahan" }: { onClick: () => void; saved: boolean; label?: string }) {
@@ -5488,8 +5723,71 @@ function SettingsToggleRow({ label, description, checked, onChange }: {
   );
 }
 
+const PROFILE_PAGE_HEADERS: Record<string, { title: string; description: string }> = {
+  "/profile":              { title: "Profil Saya",           description: "Kelola profil, perusahaan, dan preferensi akun Anda" },
+  "/profile/notifications": { title: "Preferensi Notifikasi", description: "Atur preferensi notifikasi email dan pengingat Anda" },
+  "/profile/company":      { title: "Profil Perusahaan",      description: "Kelola informasi dan detail perusahaan Anda" },
+  "/profile/team":         { title: "Team & Hak Akses",       description: "Kelola anggota tim dan hak akses mereka" },
+  "/profile/billing":      { title: "Billing & Langganan",    description: "Kelola paket langganan dan metode pembayaran Anda" },
+};
+
+interface ProfileSharedState {
+  name: string; setName: (v: string) => void;
+  email: string; setEmail: (v: string) => void;
+  phone: string; setPhone: (v: string) => void;
+  avatarSrc: string | null; setAvatarSrc: (v: string | null) => void;
+  savedPassword: string; setSavedPassword: (v: string) => void;
+  companyName: string; setCompanyName: (v: string) => void;
+  companyIndustry: string; setCompanyIndustry: (v: string) => void;
+  companyCity: string; setCompanyCity: (v: string) => void;
+  companySize: string; setCompanySize: (v: string) => void;
+  companyAddress: string; setCompanyAddress: (v: string) => void;
+  companyWebsite: string; setCompanyWebsite: (v: string) => void;
+  companyLogoSrc: string | null; setCompanyLogoSrc: (v: string | null) => void;
+  pushToast: (message: string) => void;
+}
+
+const PROFILE_SUBPAGE_HEADERS: Record<string, { title: string; description?: string; back: string }> = {
+  "/profile/edit":             { title: "Edit Profil Saya", back: "/profile" },
+  "/profile/change-password":  { title: "Ganti Kata Sandi", description: "Kelola profil, perusahaan, dan preferensi akun Anda", back: "/profile" },
+  "/profile/company/edit":     { title: "Edit Profil Perusahaan", back: "/profile/company" },
+};
+
 function ProfileLayout() {
+  const { pathname } = useLocation();
   const navigate = useNavigate();
+  const subpageHeader = PROFILE_SUBPAGE_HEADERS[pathname];
+  const header = PROFILE_PAGE_HEADERS[pathname] ?? PROFILE_PAGE_HEADERS["/profile"];
+
+  const [name, setName] = useState("Budi Santoso");
+  const [email, setEmail] = useState("budi.santoso@gmail.com");
+  const [phone, setPhone] = useState("812 3456 7890");
+  const [avatarSrc, setAvatarSrc] = useState<string | null>(imgAvatar);
+  const [savedPassword, setSavedPassword] = useState("Password123");
+
+  const [companyName, setCompanyName] = useState("PT Perisaiku Talenta");
+  const [companyIndustry, setCompanyIndustry] = useState("Teknologi Informasi");
+  const [companyCity, setCompanyCity] = useState("Jakarta Selatan");
+  const [companySize, setCompanySize] = useState("51 - 200 karyawan");
+  const [companyAddress, setCompanyAddress] = useState("Jl. Jendral Sudirman No. 1");
+  const [companyWebsite, setCompanyWebsite] = useState("https://perisakutalenta.com");
+  const [companyLogoSrc, setCompanyLogoSrc] = useState<string | null>(null);
+
+  const [toasts, setToasts] = useState<StatusToastItem[]>([]);
+  const pushToast = (message: string) => {
+    const id = Date.now() + Math.random();
+    setToasts(prev => [...prev, { id, variant: "success", message }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 4000);
+  };
+  const dismissToast = (id: number) => setToasts(prev => prev.filter(t => t.id !== id));
+
+  const outletContext: ProfileSharedState = {
+    name, setName, email, setEmail, phone, setPhone, avatarSrc, setAvatarSrc, savedPassword, setSavedPassword,
+    companyName, setCompanyName, companyIndustry, setCompanyIndustry, companyCity, setCompanyCity,
+    companySize, setCompanySize, companyAddress, setCompanyAddress, companyWebsite, setCompanyWebsite,
+    companyLogoSrc, setCompanyLogoSrc,
+    pushToast,
+  };
 
   return (
     <div className="flex-1 min-w-0 h-full flex flex-col overflow-hidden bg-[#f9f9f9]">
@@ -5498,53 +5796,261 @@ function ProfileLayout() {
         <TopBarUserMenu />
       </div>
 
+      <StatusToastStack toasts={toasts} onDismiss={dismissToast} />
+
       {/* Header */}
-      <div className="px-10 pt-6 pb-2 shrink-0 flex items-center gap-3">
-        <button onClick={() => navigate("/dashboard")} className="text-[#383b46] hover:text-[#0052ff] transition-colors"><ArrowLeft size={20} /></button>
-        <div>
-          <p className="text-[24px] font-bold text-[#383b46]" style={{ fontFamily: "DM Sans, sans-serif" }}>Pengaturan Akun</p>
-          <p className="text-sm text-[#64748b] mt-1" style={{ fontFamily: "DM Sans, sans-serif" }}>Kelola profil, perusahaan, dan preferensi akun Anda</p>
-        </div>
+      <div className="px-10 pt-6 pb-2 shrink-0">
+        {subpageHeader ? (
+          <>
+            <div className="flex items-center gap-3">
+              <button onClick={() => navigate(subpageHeader.back)} className="text-[#383b46] hover:text-[#0052ff] transition-colors"><ArrowLeft size={20} /></button>
+              <p className="text-[24px] font-bold text-[#383b46]" style={{ fontFamily: "DM Sans, sans-serif" }}>{subpageHeader.title}</p>
+            </div>
+            {subpageHeader.description && (
+              <p className="text-sm text-[#64748b] mt-1 pl-9" style={{ fontFamily: "DM Sans, sans-serif" }}>{subpageHeader.description}</p>
+            )}
+          </>
+        ) : (
+          <>
+            <p className="text-[24px] font-bold text-[#383b46]" style={{ fontFamily: "DM Sans, sans-serif" }}>{header.title}</p>
+            <p className="text-sm text-[#64748b] mt-1" style={{ fontFamily: "DM Sans, sans-serif" }}>{header.description}</p>
+          </>
+        )}
       </div>
 
       {/* Active section content */}
       <div className="flex-1 min-h-0 overflow-y-auto px-10 pt-6 pb-10">
-        <Outlet />
+        <Outlet context={outletContext} />
+      </div>
+    </div>
+  );
+}
+
+// ── Avatar crop/zoom modal (used by Profil Saya edit mode) ───────────────────
+
+function AvatarCropModal({ src, onCancel, onSave }: { src: string; onCancel: () => void; onSave: (dataUrl: string) => void }) {
+  const BOX = 280;
+  const [zoom, setZoom] = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null);
+  const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null);
+
+  const baseScale = naturalSize ? Math.max(BOX / naturalSize.w, BOX / naturalSize.h) : 1;
+  const clamp = (val: number, max: number) => Math.max(-max, Math.min(max, val));
+
+  const boundsFor = (z: number) => {
+    const w = naturalSize ? naturalSize.w * baseScale * z : BOX;
+    const h = naturalSize ? naturalSize.h * baseScale * z : BOX;
+    return { maxX: Math.max(0, (w - BOX) / 2), maxY: Math.max(0, (h - BOX) / 2) };
+  };
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragRef.current = { startX: e.clientX, startY: e.clientY, origX: offset.x, origY: offset.y };
+  };
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current) return;
+    const { maxX, maxY } = boundsFor(zoom);
+    setOffset({
+      x: clamp(dragRef.current.origX + (e.clientX - dragRef.current.startX), maxX),
+      y: clamp(dragRef.current.origY + (e.clientY - dragRef.current.startY), maxY),
+    });
+  };
+  const handlePointerUp = () => { dragRef.current = null; };
+
+  const applyZoom = (z: number) => {
+    const { maxX, maxY } = boundsFor(z);
+    setOffset(o => ({ x: clamp(o.x, maxX), y: clamp(o.y, maxY) }));
+  };
+
+  const handleZoomChange = (next: number) => {
+    const z = Math.max(1, Math.min(3, next));
+    setZoom(z);
+    applyZoom(z);
+  };
+
+  const stepZoom = (delta: number) => {
+    setZoom(prev => {
+      const z = Math.max(1, Math.min(3, prev + delta));
+      applyZoom(z);
+      return z;
+    });
+  };
+
+  const handleSave = () => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.max(BOX / img.naturalWidth, BOX / img.naturalHeight) * zoom;
+      const w = img.naturalWidth * scale;
+      const h = img.naturalHeight * scale;
+      const canvas = document.createElement("canvas");
+      canvas.width = BOX; canvas.height = BOX;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.drawImage(img, (BOX - w) / 2 + offset.x, (BOX - h) / 2 + offset.y, w, h);
+      onSave(canvas.toDataURL("image/png"));
+    };
+    img.src = src;
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[60] p-6" onClick={onCancel}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[360px] p-5 flex flex-col gap-4" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between">
+          <p className="text-[16px] font-bold text-[#383b46]" style={{ fontFamily: "DM Sans, sans-serif" }}>Atur Gambar</p>
+          <button onClick={onCancel} className="size-7 rounded-full border border-[#e6e6e7] flex items-center justify-center text-[#64748b] hover:bg-gray-50 transition-colors shrink-0">
+            <X size={14} />
+          </button>
+        </div>
+
+        <div
+          className="relative overflow-hidden rounded-xl bg-[#f1f5f9] mx-auto touch-none select-none cursor-grab active:cursor-grabbing"
+          style={{ width: BOX, height: BOX }}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerUp}
+        >
+          <img
+            src={src}
+            alt=""
+            draggable={false}
+            onLoad={e => setNaturalSize({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })}
+            className="absolute top-1/2 left-1/2 max-w-none pointer-events-none"
+            style={{
+              width: naturalSize ? naturalSize.w * baseScale : BOX,
+              height: naturalSize ? naturalSize.h * baseScale : BOX,
+              transform: `translate(-50%, -50%) translate(${offset.x}px, ${offset.y}px) scale(${zoom})`,
+            }}
+          />
+          <div className="absolute inset-0 pointer-events-none" style={{
+            backgroundImage: "linear-gradient(to right, rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.5) 1px, transparent 1px)",
+            backgroundSize: "33.33% 33.33%",
+          }} />
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button onClick={() => stepZoom(-0.1)} className="text-[#606268] text-lg leading-none w-5 shrink-0">−</button>
+          <input
+            type="range" min={1} max={3} step={0.01} value={zoom}
+            onChange={e => handleZoomChange(parseFloat(e.target.value))}
+            className="flex-1 accent-[#ff6b35]"
+          />
+          <button onClick={() => stepZoom(0.1)} className="text-[#606268] text-lg leading-none w-5 shrink-0">+</button>
+        </div>
+
+        <div className="flex items-center justify-end gap-3 pt-1">
+          <button onClick={onCancel} className="h-9 px-4 rounded-full border border-[#c5c6c9] text-[#383b46] font-bold text-[13px] hover:bg-gray-50 transition-colors" style={{ fontFamily: "DM Sans, sans-serif" }}>Batal</button>
+          <button onClick={handleSave} className="h-9 px-5 rounded-full bg-[#0052ff] text-white font-bold text-[13px] hover:bg-[#0041cc] transition-colors" style={{ fontFamily: "DM Sans, sans-serif" }}>Simpan</button>
+        </div>
       </div>
     </div>
   );
 }
 
 function ProfileUserContent() {
-  const [name, setName] = useState("Budi Santoso");
-  const [email, setEmail] = useState("budi.santoso@gmail.com");
-  const [phone, setPhone] = useState("812 3456 7890");
-  const [saved, setSaved] = useState(false);
-
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
-  };
+  const navigate = useNavigate();
+  const { name, email, phone, avatarSrc } = useOutletContext<ProfileSharedState>();
 
   return (
-    <div className="flex flex-col gap-6 max-w-[640px]">
+    <div className="flex flex-col gap-6">
       <div className="bg-white rounded-2xl border border-[#e6e6e7] p-6 flex items-center gap-5">
-        <div className="relative rounded-full shrink-0 size-20 overflow-hidden">
-          <img alt="avatar" className="absolute inset-0 size-full object-cover" src={imgAvatar} />
+        <div className="relative rounded-full shrink-0 size-20 overflow-hidden bg-[#f1f5f9]">
+          {avatarSrc && <img alt="avatar" className="absolute inset-0 size-full object-cover" src={avatarSrc} />}
         </div>
-        <div>
+        <div className="flex-1 min-w-0">
           <p className="text-[18px] font-bold text-[#383b46]" style={{ fontFamily: "DM Sans, sans-serif" }}>{name}</p>
           <p className="text-sm text-[#64748b]" style={{ fontFamily: "Inter, sans-serif" }}>Manajer HR</p>
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <button onClick={() => navigate("/profile/edit")} className="h-9 px-4 rounded-full border border-[#0052ff] text-[#0052ff] font-bold text-[13px] hover:bg-[#ebf2ff] transition-colors" style={{ fontFamily: "DM Sans, sans-serif" }}>Edit</button>
+          <button onClick={() => navigate("/profile/change-password")} className="h-9 px-4 rounded-full border border-[#c5c6c9] text-[#383b46] font-bold text-[13px] hover:bg-gray-50 transition-colors" style={{ fontFamily: "DM Sans, sans-serif" }}>Ganti Kata Sandi</button>
         </div>
       </div>
 
       <div className="bg-white rounded-2xl border border-[#e6e6e7] p-6 flex flex-col gap-5">
         <p className="text-[16px] font-bold text-[#383b46]" style={{ fontFamily: "DM Sans, sans-serif" }}>Informasi Akun</p>
+        {[
+          { label: "Nama Lengkap", value: name },
+          { label: "Email", value: email },
+          { label: "Nomor Telepon", value: `+62 ${phone}` },
+          { label: "Role", value: "Manajer HR" },
+        ].map(row => (
+          <div key={row.label} className="flex flex-col gap-1.5">
+            <span className="text-[#9b9ca1] text-xs" style={{ fontFamily: "DM Sans, sans-serif" }}>{row.label}</span>
+            <span className="text-[#383b46] text-sm" style={{ fontFamily: "DM Sans, sans-serif" }}>{row.value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ProfileEditContent() {
+  const navigate = useNavigate();
+  const { name, email, phone, avatarSrc, setName, setEmail, setPhone, setAvatarSrc, pushToast } = useOutletContext<ProfileSharedState>();
+
+  const [draftName, setDraftName] = useState(name);
+  const [draftEmail, setDraftEmail] = useState(email);
+  const [draftPhone, setDraftPhone] = useState(phone);
+  const [draftAvatar, setDraftAvatar] = useState<string | null>(avatarSrc);
+
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setCropSrc(reader.result as string);
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const handleSaveProfile = () => {
+    setName(draftName);
+    setEmail(draftEmail);
+    setPhone(draftPhone);
+    setAvatarSrc(draftAvatar);
+    pushToast("Profil akun berhasil diperbarui");
+    navigate("/profile");
+  };
+
+  return (
+    <div className="flex flex-col gap-6">
+      <input ref={fileInputRef} type="file" accept="image/png,image/jpeg" className="hidden" onChange={handleFileChange} />
+      {cropSrc && (
+        <AvatarCropModal
+          src={cropSrc}
+          onCancel={() => setCropSrc(null)}
+          onSave={dataUrl => { setDraftAvatar(dataUrl); setCropSrc(null); }}
+        />
+      )}
+
+      <div className="bg-white rounded-2xl border border-[#e6e6e7] p-6 flex flex-col gap-5">
+        <p className="text-[16px] font-bold text-[#383b46]" style={{ fontFamily: "DM Sans, sans-serif" }}>Informasi Akun</p>
+
+        <div className="flex items-center gap-4">
+          <div className="relative rounded-2xl shrink-0 size-20 overflow-hidden bg-[#f1f5f9] flex items-center justify-center">
+            {draftAvatar ? <img alt="avatar" className="absolute inset-0 size-full object-cover" src={draftAvatar} /> : <Plus size={24} className="text-[#c5c6c9]" />}
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-3">
+              <button onClick={() => fileInputRef.current?.click()} className="h-9 px-4 rounded-full border border-[#c5c6c9] text-[#383b46] font-bold text-[13px] hover:bg-gray-50 transition-colors" style={{ fontFamily: "DM Sans, sans-serif" }}>
+                {draftAvatar ? "Ganti Logo" : "Upload Logo"}
+              </button>
+              {draftAvatar && (
+                <button onClick={() => setDraftAvatar(null)} className="text-[13px] font-semibold text-[#94a3b8] hover:text-[#f83a1e] transition-colors" style={{ fontFamily: "DM Sans, sans-serif" }}>Hapus</button>
+              )}
+            </div>
+            <p className="text-[11px] text-[#94a3b8]" style={{ fontFamily: "Inter, sans-serif" }}>Rekomendasi ukuran: 500x500 px dalam format PNG atau JPG</p>
+          </div>
+        </div>
 
         <div className="flex flex-col gap-2">
           <label className="text-[#4c4f59] text-xs" style={{ fontFamily: "DM Sans, sans-serif" }}>Nama Lengkap</label>
           <div className="bg-white h-10 rounded-xl border border-[#c5c6c9] flex items-center px-3 gap-2">
-            <input value={name} onChange={e => setName(e.target.value)}
+            <input value={draftName} onChange={e => setDraftName(e.target.value)}
               className="flex-1 min-w-0 text-xs bg-transparent outline-none text-[#383b46]"
               style={{ fontFamily: "DM Sans, sans-serif" }} />
           </div>
@@ -5553,7 +6059,7 @@ function ProfileUserContent() {
         <div className="flex flex-col gap-2">
           <label className="text-[#4c4f59] text-xs" style={{ fontFamily: "DM Sans, sans-serif" }}>Email</label>
           <div className="bg-white h-10 rounded-xl border border-[#c5c6c9] flex items-center px-3 gap-2">
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+            <input type="email" value={draftEmail} onChange={e => setDraftEmail(e.target.value)}
               className="flex-1 min-w-0 text-xs bg-transparent outline-none text-[#383b46]"
               style={{ fontFamily: "DM Sans, sans-serif" }} />
           </div>
@@ -5563,7 +6069,7 @@ function ProfileUserContent() {
           <label className="text-[#4c4f59] text-xs" style={{ fontFamily: "DM Sans, sans-serif" }}>Nomor Telepon</label>
           <div className="bg-white h-10 rounded-xl border border-[#c5c6c9] flex items-center px-3 gap-2">
             <span className="text-xs text-[#94a3b8]" style={{ fontFamily: "DM Sans, sans-serif" }}>+62</span>
-            <input value={phone} onChange={e => setPhone(e.target.value)}
+            <input value={draftPhone} onChange={e => setDraftPhone(e.target.value)}
               className="flex-1 min-w-0 text-xs bg-transparent outline-none text-[#383b46]"
               style={{ fontFamily: "DM Sans, sans-serif" }} />
           </div>
@@ -5576,24 +6082,252 @@ function ProfileUserContent() {
           </div>
         </div>
 
-        <SettingsSaveButton onClick={handleSave} saved={saved} />
+        <div className="flex items-center justify-between pt-1">
+          <button onClick={() => navigate("/profile")} className="h-10 px-5 rounded-full border border-[#c5c6c9] text-[#383b46] font-bold text-[13px] hover:bg-gray-50 transition-colors" style={{ fontFamily: "DM Sans, sans-serif" }}>Batal</button>
+          <button onClick={handleSaveProfile} className="h-10 px-5 rounded-full bg-[#0052ff] text-white font-bold text-[13px] hover:bg-[#0041cc] transition-colors" style={{ fontFamily: "DM Sans, sans-serif" }}>Simpan Perubahan</button>
+        </div>
       </div>
     </div>
   );
 }
 
-function ProfileCompanyContent() {
-  const [namaPerusahaan, setNamaPerusahaan] = useState("PT Perisaiku Talenta");
-  const [industri, setIndustri] = useState("Teknologi Informasi");
-  const [ukuranPerusahaan, setUkuranPerusahaan] = useState("51-200 karyawan");
-  const [kota, setKota] = useState("Jakarta Selatan");
-  const [alamat, setAlamat] = useState("Jl. Jendral Sudirman No. 1");
-  const [website, setWebsite] = useState("https://perisakutalenta.com");
-  const [saved, setSaved] = useState(false);
+interface ChangePasswordErrors {
+  current?: string;
+  next?: string;
+  confirm?: string;
+}
+
+function ChangePasswordContent() {
+  const navigate = useNavigate();
+  const { savedPassword, setSavedPassword, pushToast } = useOutletContext<ProfileSharedState>();
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [errors, setErrors] = useState<ChangePasswordErrors>({});
+
+  const validate = (): ChangePasswordErrors => {
+    const e: ChangePasswordErrors = {};
+
+    if (!currentPassword) e.current = "Kata Sandi Saat ini wajib diisi";
+    else if (currentPassword !== savedPassword) e.current = "Kata sandi saat ini salah";
+
+    if (!newPassword) e.next = "Kata Sandi Baru wajib diisi";
+    else if (newPassword.length < 8) e.next = "Kata Sandi Baru minimal 8 karakter";
+    else if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword)) e.next = "Harus mengandung huruf kapital, huruf kecil, dan angka";
+
+    if (!confirmPassword) e.confirm = "Konfirmasi kata sandi baru wajib diisi";
+    else if (confirmPassword !== newPassword) e.confirm = "Konfirmasi kata sandi baru tidak sama";
+
+    return e;
+  };
 
   const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+    const e = validate();
+    setErrors(e);
+    if (Object.keys(e).length > 0) return;
+    setSavedPassword(newPassword);
+    pushToast("Password berhasil diperbarui");
+    navigate("/profile");
+  };
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="bg-white rounded-2xl border border-[#e6e6e7] p-6 flex flex-col gap-5">
+        <div className="flex flex-col gap-1.5">
+          <FieldLabel required>Kata Sandi Saat Ini</FieldLabel>
+          <TextInput
+            placeholder="Masukan Kata Sandi Saat Ini"
+            value={currentPassword}
+            onChange={v => { setCurrentPassword(v); setErrors(prev => ({ ...prev, current: undefined })); }}
+            type={showCurrent ? "text" : "password"}
+            error={!!errors.current}
+            suffix={
+              <button type="button" onClick={() => setShowCurrent(v => !v)} className="text-[#606268] shrink-0">
+                {showCurrent ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            }
+          />
+          <FieldError msg={errors.current} />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <FieldLabel required>Kata Sandi Baru</FieldLabel>
+          <TextInput
+            placeholder="Min. 8 Karakter"
+            value={newPassword}
+            onChange={v => { setNewPassword(v); setErrors(prev => ({ ...prev, next: undefined })); }}
+            type={showNew ? "text" : "password"}
+            error={!!errors.next}
+            suffix={
+              <button type="button" onClick={() => setShowNew(v => !v)} className="text-[#606268] shrink-0">
+                {showNew ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            }
+          />
+          <PasswordStrength password={newPassword} />
+          <FieldError msg={errors.next} />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <FieldLabel required>Konfirmasi Kata Sandi Baru</FieldLabel>
+          <TextInput
+            placeholder="Min. 8 Karakter"
+            value={confirmPassword}
+            onChange={v => { setConfirmPassword(v); setErrors(prev => ({ ...prev, confirm: undefined })); }}
+            type={showConfirm ? "text" : "password"}
+            error={!!errors.confirm}
+            suffix={
+              <button type="button" onClick={() => setShowConfirm(v => !v)} className="text-[#606268] shrink-0">
+                {showConfirm ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            }
+          />
+          <FieldError msg={errors.confirm} />
+        </div>
+
+        <div className="flex items-center justify-between pt-1">
+          <button onClick={() => navigate("/profile")} className="h-10 px-5 rounded-full border border-[#c5c6c9] text-[#383b46] font-bold text-[13px] hover:bg-gray-50 transition-colors" style={{ fontFamily: "DM Sans, sans-serif" }}>Batal</button>
+          <button onClick={handleSave} className="h-10 px-5 rounded-full bg-[#0052ff] text-white font-bold text-[13px] hover:bg-[#0041cc] transition-colors" style={{ fontFamily: "DM Sans, sans-serif" }}>Simpan Perubahan</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const COMPANY_ABOUT_PARAGRAPHS = [
+  "PT Perisaiku Talenta adalah perusahaan teknologi inovatif yang berkomitmen membangun solusi rekrutmen digital masa depan. Kami percaya bahwa kekuatan talenta terbaik adalah kunci utama dalam menghadirkan platform kelas dunia yang bermakna bagi ribuan perusahaan di Indonesia.",
+  "Fokus kami saat ini meliputi pengembangan applicant tracking system (ATS) yang efisien, integrasi kecerdasan buatan untuk penyaringan kandidat, serta peningkatan pengalaman pengguna bagi tim HR di berbagai skala bisnis.",
+];
+
+const COMPANY_DOCUMENTS = [
+  { label: "NIB", filename: "NIB_PerisakuTalenta.pdf", date: "12 Jan 2025" },
+];
+
+function ProfileCompanyContent() {
+  const navigate = useNavigate();
+  const { companyName, companyIndustry, companyCity, companySize, companyAddress, companyWebsite, companyLogoSrc } = useOutletContext<ProfileSharedState>();
+  const websiteDisplay = companyWebsite.replace(/^https?:\/\//, "");
+
+  return (
+    <div className="flex flex-col gap-6">
+      {/* Hero cover */}
+      <div className="bg-white rounded-[10px] border border-[#e6e6e7] px-8 py-4 flex items-center gap-8 w-full flex-wrap">
+        <div className="bg-white rounded-3xl shadow-[0px_8px_16px_rgba(0,0,0,0.05)] shrink-0 size-[120px] flex items-center justify-center overflow-hidden">
+          {companyLogoSrc ? (
+            <img src={companyLogoSrc} alt="Logo perusahaan" className="size-full object-cover" />
+          ) : (
+            <Building2 size={48} className="text-[#0052ff]" />
+          )}
+        </div>
+        <div className="flex-1 min-w-[280px] flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <p className="text-[21px] font-bold text-[#09090b]" style={{ fontFamily: "DM Sans, sans-serif" }}>{companyName}</p>
+            <BadgeCheck size={20} className="text-white shrink-0" fill="#22c55e" />
+          </div>
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="text-[14px] font-medium text-[#4c4f59]" style={{ fontFamily: "DM Sans, sans-serif" }}>{companyIndustry}</span>
+            <span className="size-1 rounded-full bg-[#c5c6c9] shrink-0" />
+            <span className="text-[14px] font-medium text-[#4c4f59]" style={{ fontFamily: "DM Sans, sans-serif" }}>{companyCity}</span>
+            <span className="size-1 rounded-full bg-[#c5c6c9] shrink-0" />
+            <span className="text-[14px] font-medium text-[#4c4f59]" style={{ fontFamily: "DM Sans, sans-serif" }}>{companySize}</span>
+          </div>
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="text-[14px] font-medium text-[#666]" style={{ fontFamily: "DM Sans, sans-serif" }}>{companyAddress}</span>
+            <span className="size-1 rounded-full bg-[#c5c6c9] shrink-0" />
+            <a href={companyWebsite} target="_blank" rel="noreferrer" className="text-[14px] font-medium text-[#1a66cc] hover:underline" style={{ fontFamily: "DM Sans, sans-serif" }}>{websiteDisplay}</a>
+          </div>
+        </div>
+        <button
+          onClick={() => navigate("/profile/company/edit")}
+          className="h-11 px-6 rounded-xl border-[1.5px] border-[#0052ff] text-[#0052ff] font-bold text-[14px] hover:bg-[#ebf2ff] transition-colors shrink-0"
+          style={{ fontFamily: "DM Sans, sans-serif" }}
+        >
+          Edit
+        </button>
+      </div>
+
+      {/* Content columns */}
+      <div className="bg-white rounded-[10px] border border-[#e6e6e7] px-8 pt-8 pb-10 flex gap-12 items-start flex-wrap">
+        <div className="flex flex-col gap-8 flex-1 min-w-[320px]">
+          <div className="flex flex-col gap-3">
+            <p className="text-[16px] font-bold text-[#09090b]" style={{ fontFamily: "DM Sans, sans-serif" }}>Tentang Perusahaan</p>
+            <div className="flex flex-col gap-4">
+              {COMPANY_ABOUT_PARAGRAPHS.map((p, i) => (
+                <p key={i} className="text-[14px] leading-[1.8] text-[#71717a]" style={{ fontFamily: "DM Sans, sans-serif" }}>{p}</p>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <p className="text-[16px] font-bold text-[#09090b]" style={{ fontFamily: "DM Sans, sans-serif" }}>Dokumen yang Sudah Diupload</p>
+            <div className="flex flex-col gap-3">
+              {COMPANY_DOCUMENTS.map(doc => (
+                <div key={doc.label} className="bg-white border border-[#e5e5e5] rounded-xl p-5 flex items-center gap-4">
+                  <div className="bg-[#edf2f8] rounded-[10px] shrink-0 size-11 flex items-center justify-center">
+                    <FileText size={20} className="text-[#4c4f59]" />
+                  </div>
+                  <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                    <p className="text-[14px] font-medium text-[#09090b]" style={{ fontFamily: "DM Sans, sans-serif" }}>{doc.label}</p>
+                    <p className="text-[13px] text-[#71717a] truncate" style={{ fontFamily: "DM Sans, sans-serif" }}>{doc.filename}</p>
+                    <p className="text-[12px] text-[#71717a]" style={{ fontFamily: "DM Sans, sans-serif" }}>{doc.date}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 w-full sm:w-[320px] shrink-0">
+          <p className="text-[16px] font-bold text-[#09090b]" style={{ fontFamily: "DM Sans, sans-serif" }}>Foto kantor</p>
+          <p className="text-[14px] text-[#71717a]" style={{ fontFamily: "DM Sans, sans-serif" }}>-</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProfileCompanyEditContent() {
+  const navigate = useNavigate();
+  const {
+    companyName, companyIndustry, companyCity, companySize, companyAddress, companyWebsite, companyLogoSrc,
+    setCompanyName, setCompanyIndustry, setCompanyCity, setCompanySize, setCompanyAddress, setCompanyWebsite, setCompanyLogoSrc,
+    pushToast,
+  } = useOutletContext<ProfileSharedState>();
+
+  const [draftName, setDraftName] = useState(companyName);
+  const [draftIndustry, setDraftIndustry] = useState(companyIndustry);
+  const [draftCity, setDraftCity] = useState(companyCity);
+  const [draftSize, setDraftSize] = useState(companySize);
+  const [draftAddress, setDraftAddress] = useState(companyAddress);
+  const [draftWebsite, setDraftWebsite] = useState(companyWebsite);
+  const [draftLogo, setDraftLogo] = useState<string | null>(companyLogoSrc);
+
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setCropSrc(reader.result as string);
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const handleSave = () => {
+    setCompanyName(draftName);
+    setCompanyIndustry(draftIndustry);
+    setCompanyCity(draftCity);
+    setCompanySize(draftSize);
+    setCompanyAddress(draftAddress);
+    setCompanyWebsite(draftWebsite);
+    setCompanyLogoSrc(draftLogo);
+    pushToast("Profil perusahaan berhasil diperbarui");
+    navigate("/profile/company");
   };
 
   const field = (label: string, value: string, setValue: (v: string) => void) => (
@@ -5608,107 +6342,68 @@ function ProfileCompanyContent() {
   );
 
   return (
-    <div className="flex flex-col gap-6 max-w-[640px]">
-      <div className="bg-white rounded-2xl border border-[#e6e6e7] p-6 flex items-center gap-5">
-        <div className="rounded-2xl shrink-0 size-20 bg-[#ebf2ff] flex items-center justify-center">
-          <Building2 size={32} className="text-[#0052ff]" />
-        </div>
-        <div>
-          <p className="text-[18px] font-bold text-[#383b46]" style={{ fontFamily: "DM Sans, sans-serif" }}>{namaPerusahaan}</p>
-          <p className="text-sm text-[#64748b]" style={{ fontFamily: "Inter, sans-serif" }}>{industri}</p>
-        </div>
-      </div>
+    <div className="flex flex-col gap-6">
+      <input ref={fileInputRef} type="file" accept="image/png,image/jpeg" className="hidden" onChange={handleFileChange} />
+      {cropSrc && (
+        <AvatarCropModal
+          src={cropSrc}
+          onCancel={() => setCropSrc(null)}
+          onSave={dataUrl => { setDraftLogo(dataUrl); setCropSrc(null); }}
+        />
+      )}
 
       <div className="bg-white rounded-2xl border border-[#e6e6e7] p-6 flex flex-col gap-5">
         <p className="text-[16px] font-bold text-[#383b46]" style={{ fontFamily: "DM Sans, sans-serif" }}>Informasi Perusahaan</p>
-        {field("Nama Perusahaan", namaPerusahaan, setNamaPerusahaan)}
-        {field("Industri", industri, setIndustri)}
-        {field("Ukuran Perusahaan", ukuranPerusahaan, setUkuranPerusahaan)}
-        {field("Kota", kota, setKota)}
-        {field("Alamat", alamat, setAlamat)}
-        {field("Website", website, setWebsite)}
-        <SettingsSaveButton onClick={handleSave} saved={saved} />
+
+        <div className="flex items-center gap-4">
+          <div className="relative rounded-2xl shrink-0 size-20 overflow-hidden bg-[#f1f5f9] flex items-center justify-center">
+            {draftLogo ? <img alt="Logo perusahaan" className="absolute inset-0 size-full object-cover" src={draftLogo} /> : <Plus size={24} className="text-[#c5c6c9]" />}
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-3">
+              <button onClick={() => fileInputRef.current?.click()} className="h-9 px-4 rounded-full border border-[#c5c6c9] text-[#383b46] font-bold text-[13px] hover:bg-gray-50 transition-colors" style={{ fontFamily: "DM Sans, sans-serif" }}>
+                {draftLogo ? "Ganti Logo" : "Upload Logo"}
+              </button>
+              {draftLogo && (
+                <button onClick={() => setDraftLogo(null)} className="text-[13px] font-semibold text-[#94a3b8] hover:text-[#f83a1e] transition-colors" style={{ fontFamily: "DM Sans, sans-serif" }}>Hapus</button>
+              )}
+            </div>
+            <p className="text-[11px] text-[#94a3b8]" style={{ fontFamily: "Inter, sans-serif" }}>Rekomendasi ukuran: 500x500 px dalam format PNG atau JPG</p>
+          </div>
+        </div>
+
+        {field("Nama Perusahaan", draftName, setDraftName)}
+        {field("Industri", draftIndustry, setDraftIndustry)}
+        {field("Ukuran Perusahaan", draftSize, setDraftSize)}
+        {field("Kota", draftCity, setDraftCity)}
+        {field("Alamat", draftAddress, setDraftAddress)}
+        {field("Website", draftWebsite, setDraftWebsite)}
+
+        <div className="flex items-center justify-between pt-1">
+          <button onClick={() => navigate("/profile/company")} className="h-10 px-5 rounded-full border border-[#c5c6c9] text-[#383b46] font-bold text-[13px] hover:bg-gray-50 transition-colors" style={{ fontFamily: "DM Sans, sans-serif" }}>Batal</button>
+          <button onClick={handleSave} className="h-10 px-5 rounded-full bg-[#0052ff] text-white font-bold text-[13px] hover:bg-[#0041cc] transition-colors" style={{ fontFamily: "DM Sans, sans-serif" }}>Simpan Perubahan</button>
+        </div>
       </div>
     </div>
   );
 }
 
-function ProfileSettingsContent() {
-  const [emailNotif, setEmailNotif] = useState(true);
-  const [interviewReminder, setInterviewReminder] = useState(true);
-  const [notifSaved, setNotifSaved] = useState(false);
+function ProfileNotificationsContent() {
+  return null;
+}
 
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [passwordSaved, setPasswordSaved] = useState(false);
+const TEAM_MEMBERS = [
+  { name: "Budi Santoso", email: "budi.santoso@gmail.com", role: "Owner" },
+  { name: "Aditya Rahardjo", email: "aditya.rahardjo@perisakutalenta.com", role: "Admin" },
+  { name: "Siti Aminah", email: "siti.aminah@perisakutalenta.com", role: "Recruiter" },
+];
 
-  const handleSaveNotif = () => {
-    setNotifSaved(true);
-    setTimeout(() => setNotifSaved(false), 2500);
-  };
+function ProfileTeamContent() {
+  return null;
+}
 
-  const handleChangePassword = () => {
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      setPasswordError("Semua kolom password wajib diisi.");
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setPasswordError("Konfirmasi password baru tidak cocok.");
-      return;
-    }
-    setPasswordError("");
-    setPasswordSaved(true);
-    setCurrentPassword(""); setNewPassword(""); setConfirmPassword("");
-    setTimeout(() => setPasswordSaved(false), 2500);
-  };
-
-  return (
-    <div className="flex flex-col gap-6 max-w-[640px]">
-      <div className="bg-white rounded-2xl border border-[#e6e6e7] p-6 flex flex-col gap-5">
-        <p className="text-[16px] font-bold text-[#383b46]" style={{ fontFamily: "DM Sans, sans-serif" }}>Notifikasi</p>
-        <SettingsToggleRow label="Notifikasi Email" description="Terima update lowongan dan kandidat lewat email" checked={emailNotif} onChange={setEmailNotif} />
-        <SettingsToggleRow label="Pengingat Wawancara" description="Dapatkan pengingat sebelum sesi wawancara dimulai" checked={interviewReminder} onChange={setInterviewReminder} />
-        <SettingsSaveButton onClick={handleSaveNotif} saved={notifSaved} />
-      </div>
-
-      <div className="bg-white rounded-2xl border border-[#e6e6e7] p-6 flex flex-col gap-5">
-        <p className="text-[16px] font-bold text-[#383b46]" style={{ fontFamily: "DM Sans, sans-serif" }}>Ubah Password</p>
-
-        <div className="flex flex-col gap-2">
-          <label className="text-[#4c4f59] text-xs" style={{ fontFamily: "DM Sans, sans-serif" }}>Password Saat Ini</label>
-          <div className="bg-white h-10 rounded-xl border border-[#c5c6c9] flex items-center px-3 gap-2">
-            <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)}
-              className="flex-1 min-w-0 text-xs bg-transparent outline-none text-[#383b46]"
-              style={{ fontFamily: "DM Sans, sans-serif" }} />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label className="text-[#4c4f59] text-xs" style={{ fontFamily: "DM Sans, sans-serif" }}>Password Baru</label>
-          <div className="bg-white h-10 rounded-xl border border-[#c5c6c9] flex items-center px-3 gap-2">
-            <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)}
-              className="flex-1 min-w-0 text-xs bg-transparent outline-none text-[#383b46]"
-              style={{ fontFamily: "DM Sans, sans-serif" }} />
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label className="text-[#4c4f59] text-xs" style={{ fontFamily: "DM Sans, sans-serif" }}>Konfirmasi Password Baru</label>
-          <div className="bg-white h-10 rounded-xl border border-[#c5c6c9] flex items-center px-3 gap-2">
-            <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
-              className="flex-1 min-w-0 text-xs bg-transparent outline-none text-[#383b46]"
-              style={{ fontFamily: "DM Sans, sans-serif" }} />
-          </div>
-        </div>
-
-        {passwordError && <p className="text-[12px] text-[#f83a1e]" style={{ fontFamily: "Inter, sans-serif" }}>{passwordError}</p>}
-
-        <SettingsSaveButton onClick={handleChangePassword} saved={passwordSaved} label="Ubah Password" />
-      </div>
-    </div>
-  );
+function ProfileBillingContent() {
+  return null;
 }
 
 // ── Cari Kandidat page ────────────────────────────────────────────────────────
@@ -5890,7 +6585,7 @@ function DashboardLayout() {
 
   return (
     <div className="flex w-full h-screen overflow-hidden">
-      {inProfileSection ? <ProfileSidebar /> : <DashboardSidebar />}
+      {inProfileSection ? <SettingsSidebar /> : <DashboardSidebar />}
       <Outlet />
     </div>
   );
@@ -6121,9 +6816,14 @@ const router = createBrowserRouter([
       {
         Component: ProfileLayout,
         children: [
-          { path: "/profile",          Component: ProfileUserContent },
-          { path: "/profile/company",  Component: ProfileCompanyContent },
-          { path: "/profile/settings", Component: ProfileSettingsContent },
+          { path: "/profile",              Component: ProfileUserContent },
+          { path: "/profile/edit",         Component: ProfileEditContent },
+          { path: "/profile/change-password", Component: ChangePasswordContent },
+          { path: "/profile/notifications", Component: ProfileNotificationsContent },
+          { path: "/profile/company",      Component: ProfileCompanyContent },
+          { path: "/profile/company/edit", Component: ProfileCompanyEditContent },
+          { path: "/profile/team",         Component: ProfileTeamContent },
+          { path: "/profile/billing",      Component: ProfileBillingContent },
         ],
       },
     ],
