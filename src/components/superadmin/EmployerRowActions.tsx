@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { Eye, MoreVertical, CircleCheck, SquarePen, Ban } from "lucide-react";
+import { useNavigate } from "react-router";
+import { Eye, MoreVertical, CircleCheck, SquarePen } from "lucide-react";
 import { EmployerVerificationStatus } from "../../mocks/superadmin";
 
-export function EmployerRowActions({ status, onApprove, onRequestRevision, onReject }: { status: EmployerVerificationStatus; onApprove: () => void; onRequestRevision: () => void; onReject: () => void }) {
+export function EmployerRowActions({ id, status, onApprove, onRequestRevision }: { id: string; status: EmployerVerificationStatus; onApprove: () => void; onRequestRevision: () => void }) {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -17,7 +19,12 @@ export function EmployerRowActions({ status, onApprove, onRequestRevision, onRej
 
   return (
     <div className="flex items-center justify-center gap-2">
-      <button title="Lihat Detail" className="w-7 h-7 rounded-md flex items-center justify-center text-icon-default hover:bg-gray-100 transition-colors" aria-label="Lihat detail">
+      <button
+        title="Lihat Detail"
+        onClick={() => navigate(`/superadmin/verifikasi-employer/${id}`)}
+        className="w-7 h-7 rounded-md flex items-center justify-center text-icon-default hover:bg-gray-100 transition-colors"
+        aria-label="Lihat detail"
+      >
         <Eye size={14} />
       </button>
       {status === "pending" && (
@@ -48,14 +55,6 @@ export function EmployerRowActions({ status, onApprove, onRequestRevision, onRej
               >
                 <SquarePen size={14} className="text-icon-default" />
                 Request Revisi
-              </button>
-              <div className="bg-border-lighter h-px my-1 mx-2" />
-              <button
-                onClick={() => { setOpen(false); onReject(); }}
-                className="flex items-center gap-2.5 w-full px-2 py-1.5 text-[12px] text-[#c93f2a] hover:bg-red-50 rounded-md transition-colors leading-[18px]"
-              >
-                <Ban size={14} className="text-[#c93f2a]" />
-                Tolak
               </button>
             </div>
           )}

@@ -35,6 +35,8 @@ import { ProfileTeamContent } from "../pages/profile/ProfileTeamContent";
 import { ProfileBillingContent } from "../pages/profile/ProfileBillingContent";
 
 import { VerifikasiEmployerContent } from "../pages/superadmin/VerifikasiEmployerContent";
+import { EmployerDetailContent } from "../pages/superadmin/EmployerDetailContent";
+import { DocumentPreview } from "../pages/superadmin/DocumentPreview";
 import { ManajemenPenggunaContent } from "../pages/superadmin/ManajemenPenggunaContent";
 import { AnalitikPlatformContent } from "../pages/superadmin/AnalitikPlatformContent";
 import { KonfigurasiPajakContent } from "../pages/superadmin/KonfigurasiPajakContent";
@@ -61,6 +63,7 @@ export const router = createBrowserRouter([
   { path: "/forgot-password",      Component: ForgotPasswordScreen, ErrorBoundary: RouteErrorPage },
   { path: "/forgot-password/sent", Component: ResetLinkSentScreen,  ErrorBoundary: RouteErrorPage },
   { path: "/reset-password",       Component: ResetPasswordScreen,  ErrorBoundary: RouteErrorPage },
+  { path: "/dokumen-preview",      Component: DocumentPreview,      ErrorBoundary: RouteErrorPage },
   {
     Component: DashboardLayout,
     ErrorBoundary: RouteErrorPage,
@@ -98,6 +101,7 @@ export const router = createBrowserRouter([
     children: [
       { path: "/superadmin",                     Component: () => <Navigate to="/superadmin/verifikasi-employer" replace /> },
       { path: "/superadmin/verifikasi-employer",  Component: VerifikasiEmployerContent },
+      { path: "/superadmin/verifikasi-employer/:id", Component: EmployerDetailContent },
       { path: "/superadmin/manajemen-pengguna",   Component: ManajemenPenggunaContent },
       { path: "/superadmin/analitik-platform",    Component: AnalitikPlatformContent },
       { path: "/superadmin/konfigurasi-pajak",    Component: KonfigurasiPajakContent },

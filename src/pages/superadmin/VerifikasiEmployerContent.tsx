@@ -1,21 +1,43 @@
 import { useState } from "react";
-import { Search, ListFilter, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ListFilter, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { SuperadminTopBar } from "../../layouts/SuperadminLayout";
 import { EmployerFilterPanel } from "../../components/superadmin/EmployerFilterPanel";
 import { EmployerRowActions } from "../../components/superadmin/EmployerRowActions";
+import { ApproveEmployerModal } from "../../components/superadmin/ApproveEmployerModal";
+import { RequestRevisionModal } from "../../components/superadmin/RequestRevisionModal";
+import { StatusToastStack, StatusToastItem } from "../../components/shared/StatusToast";
 import {
-  EmployerVerificationStatus, EmployerVerificationRow, EMPLOYER_VERIFICATION_ROWS, EMPLOYER_STATUS_STYLE,
-  EmployerFilterValues, EMPTY_EMPLOYER_FILTERS, EMPLOYER_TABLE_COLUMNS, EMPLOYER_TABLE_GRID_COLS,
+  EmployerVerificationRow, EMPLOYER_VERIFICATION_ROWS, EMPLOYER_STATUS_STYLE,
+  EmployerFilterValues, EMPTY_EMPLOYER_FILTERS, DEFAULT_EMPLOYER_FILTERS, EMPLOYER_TABLE_COLUMNS, EMPLOYER_TABLE_GRID_COLS,
 } from "../../mocks/superadmin";
 
 export function VerifikasiEmployerContent() {
   const [search, setSearch] = useState("");
   const [rows, setRows] = useState<EmployerVerificationRow[]>(EMPLOYER_VERIFICATION_ROWS);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [activeFilters, setActiveFilters] = useState<EmployerFilterValues>(EMPTY_EMPLOYER_FILTERS);
+  const [activeFilters, setActiveFilters] = useState<EmployerFilterValues>(DEFAULT_EMPLOYER_FILTERS);
+  const [confirmAction, setConfirmAction] = useState<{ type: "approve" | "revision"; row: EmployerVerificationRow } | null>(null);
+  const [toasts, setToasts] = useState<StatusToastItem[]>([]);
 
-  const setRowStatus = (nama: string, status: EmployerVerificationStatus) =>
-    setRows(prev => prev.map(row => (row.nama === nama ? { ...row, status, sla: "-", slaColor: "text-text-lighter" } : row)));
+  const pushToast = (message: string) => {
+    const toastId = Date.now();
+    setToasts(prev => [...prev, { id: toastId, variant: "success", message }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== toastId)), 4000);
+  };
+
+  const handleApprove = () => {
+    if (!confirmAction) return;
+    setRows(prev => prev.map(r => (r.id === confirmAction.row.id ? { ...r, status: "verified", sla: "-", slaColor: "text-text-lighter" } : r)));
+    setConfirmAction(null);
+    pushToast("Employeer behasil disetujui");
+  };
+
+  const handleRequestRevision = (note: string) => {
+    if (!confirmAction) return;
+    setRows(prev => prev.map(r => (r.id === confirmAction.row.id ? { ...r, status: "revision", sla: "-", slaColor: "text-text-lighter", revisionNote: note } : r)));
+    setConfirmAction(null);
+    pushToast("Permintaan Revisi berhasil dikrim");
+  };
 
   const filtered = rows.filter(row =>
     row.nama.toLowerCase().includes(search.toLowerCase())
@@ -23,6 +45,14 @@ export function VerifikasiEmployerContent() {
     && (!activeFilters.industri || row.industri === activeFilters.industri)
     && (!activeFilters.kota || row.kota === activeFilters.kota)
   );
+
+  const activeChips: { fieldKey: keyof EmployerFilterValues; label: string; value: string }[] = [
+    ...(activeFilters.status ? [{ fieldKey: "status" as const, label: "Status", value: EMPLOYER_STATUS_STYLE[activeFilters.status].label }] : []),
+    ...(activeFilters.industri ? [{ fieldKey: "industri" as const, label: "Industri", value: activeFilters.industri }] : []),
+    ...(activeFilters.kota ? [{ fieldKey: "kota" as const, label: "Kota", value: activeFilters.kota }] : []),
+  ];
+  const removeChip = (fieldKey: keyof EmployerFilterValues) => setActiveFilters(prev => ({ ...prev, [fieldKey]: "" }));
+  const hasFilters = activeChips.length > 0;
 
   return (
     <div className="flex-1 min-w-0 h-full overflow-y-auto bg-surface">
@@ -73,6 +103,38 @@ export function VerifikasiEmployerContent() {
               </div>
             </div>
 
+            {/* Filter aktif bar */}
+            {hasFilters && (
+              <div className="flex items-center gap-2 flex-wrap -mt-3">
+                <span className="text-[12px] text-text-darker font-medium shrink-0" style={{ fontFamily: "var(--font-body)" }}>
+                  Filter Aktif :
+                </span>
+                {activeChips.map((chip) => (
+                  <div
+                    key={chip.fieldKey}
+                    className="bg-white h-6 flex items-center gap-2 pl-3 pr-1 rounded-full border border-border-default"
+                  >
+                    <span className="text-[10px] text-[#333] leading-4" style={{ fontFamily: "var(--font-body)" }}>
+                      {chip.label}: {chip.value}
+                    </span>
+                    <button
+                      onClick={() => removeChip(chip.fieldKey)}
+                      className="size-[14px] flex items-center justify-center rounded-full hover:bg-gray-100 shrink-0"
+                    >
+                      <X size={9} className="text-icon-default" />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  onClick={() => setActiveFilters(EMPTY_EMPLOYER_FILTERS)}
+                  className="text-[10px] font-bold text-[#c93f2a] hover:text-[#a83222] transition-colors shrink-0"
+                  style={{ fontFamily: "var(--font-body)" }}
+                >
+                  Hapus Semua
+                </button>
+              </div>
+            )}
+
             {/* Inner table card */}
             <div className="border border-border-lighter rounded-xl overflow-hidden">
               {/* Header */}
@@ -86,7 +148,7 @@ export function VerifikasiEmployerContent() {
               {filtered.map((row, i) => {
                 const statusStyle = EMPLOYER_STATUS_STYLE[row.status];
                 return (
-                  <div key={row.nama} className={`grid ${EMPLOYER_TABLE_GRID_COLS} items-center gap-6 p-4 hover:bg-[#f7faff] transition-colors ${i < filtered.length - 1 ? "border-b border-border-lighter" : ""}`}>
+                  <div key={row.id} className={`grid ${EMPLOYER_TABLE_GRID_COLS} items-center gap-6 p-4 hover:bg-[#f7faff] transition-colors ${i < filtered.length - 1 ? "border-b border-border-lighter" : ""}`}>
                     <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.nama}</p>
                     <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.industri}</p>
                     <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.kota}</p>
@@ -99,10 +161,10 @@ export function VerifikasiEmployerContent() {
                       </span>
                     </div>
                     <EmployerRowActions
+                      id={row.id}
                       status={row.status}
-                      onApprove={() => setRowStatus(row.nama, "verified")}
-                      onRequestRevision={() => setRowStatus(row.nama, "revision")}
-                      onReject={() => setRowStatus(row.nama, "rejected")}
+                      onApprove={() => setConfirmAction({ type: "approve", row })}
+                      onRequestRevision={() => setConfirmAction({ type: "revision", row })}
                     />
                   </div>
                 );
@@ -142,6 +204,22 @@ export function VerifikasiEmployerContent() {
           </div>
         </div>
       </div>
+
+      {confirmAction?.type === "approve" && (
+        <ApproveEmployerModal
+          nama={confirmAction.row.nama}
+          onClose={() => setConfirmAction(null)}
+          onConfirm={handleApprove}
+        />
+      )}
+      {confirmAction?.type === "revision" && (
+        <RequestRevisionModal
+          nama={confirmAction.row.nama}
+          onClose={() => setConfirmAction(null)}
+          onConfirm={handleRequestRevision}
+        />
+      )}
+      <StatusToastStack toasts={toasts} onDismiss={id => setToasts(prev => prev.filter(t => t.id !== id))} />
     </div>
   );
 }

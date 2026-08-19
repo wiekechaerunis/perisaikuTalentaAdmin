@@ -25,7 +25,7 @@ function SuperadminSidebar() {
 
       <div className="flex flex-col gap-2 w-full">
         {SUPERADMIN_NAV.map(item => {
-          const isActive = pathname === item.path;
+          const isActive = pathname === item.path || pathname.startsWith(`${item.path}/`);
           const Icon = item.icon;
           return (
             <button
