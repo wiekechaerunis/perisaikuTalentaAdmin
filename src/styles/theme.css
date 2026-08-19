@@ -78,6 +78,35 @@
   --sidebar-ring: oklch(0.439 0 0);
 }
 
+/*
+ * Brand tokens — the actual palette/fonts driving Perisaiku Talenta's hand-built UI
+ * (App.tsx and friends). These are additive to the shadcn scaffold above and don't
+ * touch it; the shadcn tokens are unused by the app's real components today.
+ * Values match the hex codes already in use so introducing this file changes nothing
+ * visually — it just gives every repeated color/font one place to change from.
+ * Defined inside @theme (not :root) so Tailwind generates bg-brand-primary,
+ * text-text-darker, border-border-lighter, font-body, etc. as real utility classes.
+ */
+@theme {
+  --color-brand-primary: #2b81f3;
+  --color-brand-primary-hover: #2267c2;
+  --color-text-default: #383b46;
+  --color-text-darker: #4c4f59;
+  --color-text-lighter: #777980;
+  --color-text-muted: #64748b;
+  --color-text-subtle: #94a3b8;
+  --color-icon-default: #606268;
+  --color-border-default: #c5c6c9;
+  --color-border-lighter: #e6e6e7;
+  --color-surface: #f9f9f9;
+  --color-danger: #cc0e0e;
+  --color-danger-strong: #f83a1e;
+  --color-success: #6acd75;
+
+  --font-body: "Plus Jakarta Sans", sans-serif;
+  --font-heading: "DM Sans", sans-serif;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
