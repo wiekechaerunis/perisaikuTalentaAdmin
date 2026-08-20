@@ -38,8 +38,11 @@ import { VerifikasiEmployerContent } from "../pages/superadmin/VerifikasiEmploye
 import { EmployerDetailContent } from "../pages/superadmin/EmployerDetailContent";
 import { DocumentPreview } from "../pages/superadmin/DocumentPreview";
 import { ManajemenPenggunaContent } from "../pages/superadmin/ManajemenPenggunaContent";
+import { UserDetailContent } from "../pages/superadmin/UserDetailContent";
 import { AnalitikPlatformContent } from "../pages/superadmin/AnalitikPlatformContent";
 import { KonfigurasiPajakContent } from "../pages/superadmin/KonfigurasiPajakContent";
+import { TambahKonfigurasiPajakContent } from "../pages/superadmin/TambahKonfigurasiPajakContent";
+import { EditKonfigurasiPajakContent } from "../pages/superadmin/EditKonfigurasiPajakContent";
 
 function RouteErrorPage() {
   const error = useRouteError() as { message?: string; statusText?: string } | null;
@@ -103,8 +106,11 @@ export const router = createBrowserRouter([
       { path: "/superadmin/verifikasi-employer",  Component: VerifikasiEmployerContent },
       { path: "/superadmin/verifikasi-employer/:id", Component: EmployerDetailContent },
       { path: "/superadmin/manajemen-pengguna",   Component: ManajemenPenggunaContent },
+      { path: "/superadmin/manajemen-pengguna/:id", Component: UserDetailContent },
       { path: "/superadmin/analitik-platform",    Component: AnalitikPlatformContent },
       { path: "/superadmin/konfigurasi-pajak",    Component: KonfigurasiPajakContent },
+      { path: "/superadmin/konfigurasi-pajak/tambah", Component: TambahKonfigurasiPajakContent },
+      { path: "/superadmin/konfigurasi-pajak/:id/edit", Component: EditKonfigurasiPajakContent },
     ],
   },
 ]);

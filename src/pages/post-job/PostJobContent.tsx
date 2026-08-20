@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation, useParams } from "react-router";
 import { ArrowLeft, ChevronRight, Check, Clock, Info } from "lucide-react";
 import { NotificationBell } from "../../components/shared/NotificationBell";
 import { TopBarUserMenu } from "../../components/shared/TopBarUserMenu";
+import { useFormGuard } from "../../lib/formGuard";
 import { InfoModal } from "../../components/shared/InfoModal";
 import { StepperHeader, WIZARD_STEPS } from "../../components/post-job/StepperHeader";
 import { NamaPosisiAutocomplete } from "../../components/post-job/NamaPosisiAutocomplete";
@@ -89,6 +90,13 @@ export function PostJobContent() {
   const exitTarget = isPublishedEdit ? `/lowongan/${id}` : "/lowongan";
   const skipDirtyCheck = isEditMode || isDuplicateRoute;
   const isDirty = !skipDirtyCheck && (step > 1 || !!(namaPosisi || kategori || levelPekerjaan || tipePekerjaan || deskripsi || batasTanggal || urlRedirect));
+
+  const { setDirty } = useFormGuard();
+  useEffect(() => {
+    setDirty(isDirty);
+    return () => setDirty(false);
+  }, [isDirty, setDirty]);
+
   const handleExit = () => { if (isDirty) { setShowModal(true); } else { navigate(exitTarget); } };
   const handleFooterBack = () => { if (step > 1) setStep(step - 1); else handleExit(); };
   const handleNext = () => { if (step < 4) setStep(step + 1); else navigate(exitTarget, { state: { toast: "published" } }); };

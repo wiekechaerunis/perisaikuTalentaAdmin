@@ -9,7 +9,7 @@ export function EmployerFilterPanel({ onClose, onApply, initial }: { onClose: ()
   const [status, setStatus] = useState(initial.status);
   const [industri, setIndustri] = useState(initial.industri);
   const [kota, setKota] = useState(initial.kota);
-  const selectFieldClass = "h-10 w-full appearance-none rounded-[4px] border border-border-default bg-white px-3 pr-9 text-[12px] text-text-default outline-none focus:border-brand-primary";
+  const selectFieldClass = "h-10 w-full appearance-none rounded-xl border border-border-default bg-white px-3 pr-9 text-[12px] text-text-default outline-none focus:border-brand-primary";
   const labelClass = "mb-2 block text-[12px] font-medium text-text-default";
 
   const ref = useRef<HTMLDivElement>(null);

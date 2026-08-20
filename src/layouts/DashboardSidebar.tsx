@@ -2,9 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { Plus, Menu, CircleHelp, Headphones } from "lucide-react";
 import { SidebarLogo } from "../components/shared/SidebarLogo";
+import { useFormGuard } from "../lib/formGuard";
 
 export function DashboardSidebar() {
-  const navigate = useNavigate();
+  const navigateRaw = useNavigate();
+  const { guardAction } = useFormGuard();
+  const navigate = (path: string) => guardAction(() => navigateRaw(path));
   const { pathname } = useLocation();
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem("dashboard-sidebar-collapsed") === "true");
 

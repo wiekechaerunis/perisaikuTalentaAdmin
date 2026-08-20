@@ -6,10 +6,12 @@ import { EmployerRowActions } from "../../components/superadmin/EmployerRowActio
 import { ApproveEmployerModal } from "../../components/superadmin/ApproveEmployerModal";
 import { RequestRevisionModal } from "../../components/superadmin/RequestRevisionModal";
 import { StatusToastStack, StatusToastItem } from "../../components/shared/StatusToast";
+import { EmptyState } from "../../components/shared/EmptyState";
 import {
   EmployerVerificationRow, EMPLOYER_VERIFICATION_ROWS, EMPLOYER_STATUS_STYLE,
   EmployerFilterValues, EMPTY_EMPLOYER_FILTERS, DEFAULT_EMPLOYER_FILTERS, EMPLOYER_TABLE_COLUMNS, EMPLOYER_TABLE_GRID_COLS,
 } from "../../mocks/superadmin";
+import imgEmptyVerifikasiEmployer from "../../assets/superadmin/empty-verifikasi-employer.png";
 
 export function VerifikasiEmployerContent() {
   const [search, setSearch] = useState("");
@@ -136,45 +138,48 @@ export function VerifikasiEmployerContent() {
             )}
 
             {/* Inner table card */}
-            <div className="border border-border-lighter rounded-xl overflow-hidden">
-              {/* Header */}
-              <div className={`bg-[#f4f5f7] border-b border-border-lighter grid ${EMPLOYER_TABLE_GRID_COLS} items-center gap-6 px-4 py-3`}>
-                {EMPLOYER_TABLE_COLUMNS.map((col, i) => (
-                  <span key={col} className={`text-text-darker text-[12px] font-bold ${i === EMPLOYER_TABLE_COLUMNS.length - 1 ? "text-center" : ""}`} style={{ fontFamily: "var(--font-body)" }}>{col}</span>
-                ))}
-              </div>
-
-              {/* Rows */}
-              {filtered.map((row, i) => {
-                const statusStyle = EMPLOYER_STATUS_STYLE[row.status];
-                return (
-                  <div key={row.id} className={`grid ${EMPLOYER_TABLE_GRID_COLS} items-center gap-6 p-4 hover:bg-[#f7faff] transition-colors ${i < filtered.length - 1 ? "border-b border-border-lighter" : ""}`}>
-                    <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.nama}</p>
-                    <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.industri}</p>
-                    <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.kota}</p>
-                    <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.jenisEntitas}</p>
-                    <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.tanggalSubmit}</p>
-                    <span className={`text-sm font-semibold whitespace-nowrap ${row.slaColor}`} style={{ fontFamily: "var(--font-body)" }}>{row.sla}</span>
-                    <div className="flex justify-start">
-                      <span className={`px-2 py-1 rounded-full text-[11px] whitespace-nowrap inline-block ${statusStyle.bg} ${statusStyle.text} ${statusStyle.weight}`} style={{ fontFamily: "var(--font-body)" }}>
-                        {statusStyle.label}
-                      </span>
-                    </div>
-                    <EmployerRowActions
-                      id={row.id}
-                      status={row.status}
-                      onApprove={() => setConfirmAction({ type: "approve", row })}
-                      onRequestRevision={() => setConfirmAction({ type: "revision", row })}
-                    />
-                  </div>
-                );
-              })}
-              {filtered.length === 0 && (
-                <div className="flex items-center justify-center py-12">
-                  <p className="text-sm text-[#9b9ca1]" style={{ fontFamily: "var(--font-body)" }}>Tidak ada employer yang ditemukan.</p>
+            {filtered.length === 0 ? (
+              <EmptyState
+                image={imgEmptyVerifikasiEmployer}
+                title="Antrian verifikasi kosong"
+                description="Belum ada pendaftaran employer. Data akan muncul di sini setelah ada employer yang mendaftar."
+              />
+            ) : (
+              <div className="border border-border-lighter rounded-xl overflow-hidden">
+                {/* Header */}
+                <div className={`bg-[#f4f5f7] border-b border-border-lighter grid ${EMPLOYER_TABLE_GRID_COLS} items-center gap-6 px-4 py-3`}>
+                  {EMPLOYER_TABLE_COLUMNS.map((col, i) => (
+                    <span key={col} className={`text-text-darker text-[12px] font-bold ${i === EMPLOYER_TABLE_COLUMNS.length - 1 ? "text-center" : ""}`} style={{ fontFamily: "var(--font-body)" }}>{col}</span>
+                  ))}
                 </div>
-              )}
-            </div>
+
+                {/* Rows */}
+                {filtered.map((row, i) => {
+                  const statusStyle = EMPLOYER_STATUS_STYLE[row.status];
+                  return (
+                    <div key={row.id} className={`grid ${EMPLOYER_TABLE_GRID_COLS} items-center gap-6 p-4 hover:bg-[#f7faff] transition-colors ${i < filtered.length - 1 ? "border-b border-border-lighter" : ""}`}>
+                      <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.nama}</p>
+                      <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.industri}</p>
+                      <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.kota}</p>
+                      <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.jenisEntitas}</p>
+                      <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.tanggalSubmit}</p>
+                      <span className={`text-sm font-semibold whitespace-nowrap ${row.slaColor}`} style={{ fontFamily: "var(--font-body)" }}>{row.sla}</span>
+                      <div className="flex justify-start">
+                        <span className={`px-2 py-1 rounded-full text-[11px] whitespace-nowrap inline-block ${statusStyle.bg} ${statusStyle.text} ${statusStyle.weight}`} style={{ fontFamily: "var(--font-body)" }}>
+                          {statusStyle.label}
+                        </span>
+                      </div>
+                      <EmployerRowActions
+                        id={row.id}
+                        status={row.status}
+                        onApprove={() => setConfirmAction({ type: "approve", row })}
+                        onRequestRevision={() => setConfirmAction({ type: "revision", row })}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             {/* Pagination */}
             <div className="flex items-center justify-between p-6">
