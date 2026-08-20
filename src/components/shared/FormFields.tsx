@@ -60,19 +60,22 @@ export function SelectInput({
   onChange,
   options,
   error,
+  disabled,
 }: {
   placeholder: string;
   value: string;
   onChange: (v: string) => void;
   options: string[];
   error?: boolean;
+  disabled?: boolean;
 }) {
   return (
-    <div className={`relative bg-white border rounded-xl h-10 w-full transition-colors focus-within:border-brand-primary ${error ? "border-danger" : "border-border-default"}`}>
+    <div className={`relative bg-white border rounded-xl h-10 w-full transition-colors focus-within:border-brand-primary ${error ? "border-danger" : "border-border-default"} ${disabled ? "opacity-50" : ""}`}>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="appearance-none w-full h-full px-3 bg-transparent outline-none text-xs min-w-0 cursor-pointer"
+        disabled={disabled}
+        className="appearance-none w-full h-full px-3 bg-transparent outline-none text-xs min-w-0 cursor-pointer disabled:cursor-not-allowed"
         style={{
           fontFamily: "var(--font-body)",
           color: value ? "#4c4f59" : "#c5c6c9",
