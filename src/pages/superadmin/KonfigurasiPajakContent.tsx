@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
-import { Search, ListFilter, Eye, Pencil, Calculator } from "lucide-react";
+import { Search, ListFilter, Pencil, Calculator } from "lucide-react";
 import { SuperadminTopBar } from "../../layouts/SuperadminLayout";
 import { EmptyState } from "../../components/shared/EmptyState";
 import { PaginationFooter } from "../../components/shared/Pagination";
@@ -183,9 +183,6 @@ export function KonfigurasiPajakContent() {
                       <span className={`absolute left-0.5 top-0.5 size-3 rounded-full bg-white shadow-sm transition-transform ${row.aktif ? "translate-x-4" : "translate-x-0"}`} />
                     </button>
                     <div className="flex items-center justify-center gap-2">
-                      <button title="Lihat Detail" className="w-7 h-7 rounded-md flex items-center justify-center text-icon-default hover:bg-gray-100 transition-colors">
-                        <Eye size={14} />
-                      </button>
                       <button
                         title="Edit"
                         onClick={() => navigate(`/superadmin/konfigurasi-pajak/${row.id}/edit`)}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { Search, ListFilter, X } from "lucide-react";
 import { SuperadminTopBar } from "../../layouts/SuperadminLayout";
 import { PaginationFooter } from "../../components/shared/Pagination";
@@ -26,6 +27,7 @@ const USER_TABLE_COLUMNS = ["Info User", "Email", "Tipe User", "Tanggal Daftar",
 const USER_TABLE_GRID_COLS = "grid-cols-[2.2fr_2.5fr_1.4fr_2fr_0.85fr_90px]";
 
 export function ManajemenPenggunaContent() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [rows, setRows] = useState<PlatformUserRow[]>(PLATFORM_USER_ROWS);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -181,7 +183,11 @@ export function ManajemenPenggunaContent() {
                       const statusStyle = USER_STATUS_STYLE[row.status];
                       const tipeStyle = USER_TIPE_STYLE[row.tipe];
                       return (
-                        <div key={row.id} className={`grid ${USER_TABLE_GRID_COLS} items-center gap-3 p-4 hover:bg-[#f7faff] transition-colors ${ri < group.rows.length - 1 ? "border-b border-border-lighter" : ""}`}>
+                        <div
+                          key={row.id}
+                          onClick={() => navigate(`/superadmin/manajemen-pengguna/${row.id}`)}
+                          className={`grid ${USER_TABLE_GRID_COLS} items-center gap-3 p-4 hover:bg-[#f7faff] transition-colors cursor-pointer ${ri < group.rows.length - 1 ? "border-b border-border-lighter" : ""}`}
+                        >
                           <div className="flex items-center gap-3 min-w-0">
                             <img src={imgAvatar} alt="" className="size-8 rounded-full object-cover shrink-0" />
                             <p className="min-w-0 truncate text-text-darker text-sm font-semibold" style={{ fontFamily: "var(--font-heading)" }}>{row.nama}</p>

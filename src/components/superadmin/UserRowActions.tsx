@@ -28,7 +28,7 @@ export function UserRowActions({ id, status, onSuspend, onActivate, onBan, onUnb
   const itemClass = "flex items-center w-full px-2 py-1.5 text-[12px] text-text-darker hover:bg-gray-50 rounded-md transition-colors leading-[18px]";
 
   return (
-    <div className="flex items-center justify-center gap-2">
+    <div className="flex items-center justify-center gap-2" onClick={(e) => e.stopPropagation()}>
       <button
         title="Lihat Detail"
         onClick={() => navigate(`/superadmin/manajemen-pengguna/${id}`)}
