@@ -63,16 +63,19 @@ export function ProfileCompanyContent() {
 
           <div className="flex flex-col gap-3">
             <p className="text-[16px] font-bold text-[#09090b]" style={{ fontFamily: "var(--font-body)" }}>Dokumen yang Sudah Diupload</p>
-            <div className="flex flex-col gap-3">
-              {COMPANY_DOCUMENTS.map(doc => (
-                <div key={doc.label} className="bg-white border border-[#e5e5e5] rounded-xl p-5 flex items-center gap-4">
-                  <div className="bg-[#edf2f8] rounded-[10px] shrink-0 size-11 flex items-center justify-center">
-                    <FileText size={20} className="text-text-darker" />
+            <div className="flex flex-col">
+              {COMPANY_DOCUMENTS.map((doc, i) => (
+                <div key={doc.label} className={`flex items-center gap-3 py-3 ${i < COMPANY_DOCUMENTS.length - 1 ? "border-b border-[#e4e4e7]" : ""}`}>
+                  <div className="bg-[#edf2f8] rounded-md shrink-0 size-7 flex items-center justify-center">
+                    <FileText size={16} className="text-text-darker" />
                   </div>
-                  <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                  <div className="flex-1 min-w-0">
                     <p className="text-[14px] font-medium text-[#09090b]" style={{ fontFamily: "var(--font-body)" }}>{doc.label}</p>
-                    <p className="text-[13px] text-[#71717a] truncate" style={{ fontFamily: "var(--font-body)" }}>{doc.filename}</p>
-                    <p className="text-[12px] text-[#71717a]" style={{ fontFamily: "var(--font-body)" }}>{doc.date}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[12px] text-[#71717a] truncate" style={{ fontFamily: "var(--font-body)" }}>{doc.filename}</span>
+                      <span className="size-[3px] rounded-full bg-[#71717a] shrink-0" />
+                      <span className="text-[12px] text-[#71717a] shrink-0" style={{ fontFamily: "var(--font-body)" }}>{doc.date}</span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -80,14 +83,14 @@ export function ProfileCompanyContent() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 w-full sm:w-[320px] shrink-0">
+        <div className="flex flex-col gap-3 flex-1 min-w-[280px]">
           <p className="text-[16px] font-bold text-[#09090b]" style={{ fontFamily: "var(--font-body)" }}>Foto kantor</p>
           {companyPhotos.length === 0 ? (
             <p className="text-[14px] text-[#71717a]" style={{ fontFamily: "var(--font-body)" }}>-</p>
           ) : (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               {companyPhotos.map((src, i) => (
-                <div key={i} className="rounded-lg overflow-hidden h-[90px] bg-[#f4f4f5]">
+                <div key={i} className="rounded-xl overflow-hidden h-[148px] bg-[#f4f4f5]">
                   <img src={src} alt={`Foto kantor ${i + 1}`} className="size-full object-cover" />
                 </div>
               ))}
