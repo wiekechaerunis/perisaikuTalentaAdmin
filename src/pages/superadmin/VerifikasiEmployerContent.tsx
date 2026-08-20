@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { Search, ListFilter, X } from "lucide-react";
 import { SuperadminTopBar } from "../../layouts/SuperadminLayout";
 import { PaginationFooter } from "../../components/shared/Pagination";
@@ -16,6 +17,7 @@ import {
 import imgEmptyVerifikasiEmployer from "../../assets/superadmin/empty-verifikasi-employer.png";
 
 export function VerifikasiEmployerContent() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [rows, setRows] = useState<EmployerVerificationRow[]>(EMPLOYER_VERIFICATION_ROWS);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -161,7 +163,11 @@ export function VerifikasiEmployerContent() {
                 {pageItems.map((row, i) => {
                   const statusStyle = EMPLOYER_STATUS_STYLE[row.status];
                   return (
-                    <div key={row.id} className={`grid ${EMPLOYER_TABLE_GRID_COLS} items-center gap-6 p-4 hover:bg-[#f7faff] transition-colors ${i < pageItems.length - 1 ? "border-b border-border-lighter" : ""}`}>
+                    <div
+                      key={row.id}
+                      onClick={() => navigate(`/superadmin/verifikasi-employer/${row.id}`)}
+                      className={`grid ${EMPLOYER_TABLE_GRID_COLS} items-center gap-6 p-4 hover:bg-[#f7faff] transition-colors cursor-pointer ${i < pageItems.length - 1 ? "border-b border-border-lighter" : ""}`}
+                    >
                       <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.nama}</p>
                       <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.industri}</p>
                       <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.kota}</p>
