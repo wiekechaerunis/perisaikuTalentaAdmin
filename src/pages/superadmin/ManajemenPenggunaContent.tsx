@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Search, ListFilter, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Search, ListFilter, X } from "lucide-react";
 import { SuperadminTopBar } from "../../layouts/SuperadminLayout";
+import { PaginationFooter } from "../../components/shared/Pagination";
+import { usePagination } from "../../lib/pagination";
 import { UserFilterPanel } from "../../components/superadmin/UserFilterPanel";
 import { UserRowActions } from "../../components/superadmin/UserRowActions";
 import { SuspendUserModal } from "../../components/superadmin/SuspendUserModal";
@@ -70,7 +72,9 @@ export function ManajemenPenggunaContent() {
     setActiveFilters(prev => (fieldKey === "startDate" ? { ...prev, startDate: "", endDate: "" } : { ...prev, [fieldKey]: "" }));
   const hasFilters = activeChips.length > 0;
 
-  const groups = filtered.reduce<{ perusahaan: string; rows: PlatformUserRow[] }[]>((acc, row) => {
+  const { currentPage, setCurrentPage, totalPages, pageItems } = usePagination(filtered, 10);
+
+  const groups = pageItems.reduce<{ perusahaan: string; rows: PlatformUserRow[] }[]>((acc, row) => {
     const group = acc.find(g => g.perusahaan === row.perusahaan);
     if (group) group.rows.push(row);
     else acc.push({ perusahaan: row.perusahaan, rows: [row] });
@@ -210,22 +214,14 @@ export function ManajemenPenggunaContent() {
             )}
 
             {/* Pagination */}
-            <div className="flex items-center justify-between p-6">
-              <p className="text-text-muted text-sm" style={{ fontFamily: "var(--font-body)" }}>
-                Menampilkan {filtered.length} dari {rows.length} pengguna
-              </p>
-              <div className="flex items-center gap-6">
-                <button className="size-8 rounded-full border border-border-lighter flex items-center justify-center hover:bg-gray-50">
-                  <ChevronLeft size={14} className="text-icon-default" />
-                </button>
-                <div className="flex gap-2">
-                  <button className="size-8 rounded-md flex items-center justify-center text-sm font-semibold bg-brand-primary text-white" style={{ fontFamily: "var(--font-body)" }}>1</button>
-                </div>
-                <button className="size-8 rounded-full border border-border-lighter flex items-center justify-center hover:bg-gray-50">
-                  <ChevronRight size={14} className="text-icon-default" />
-                </button>
-              </div>
-            </div>
+            <PaginationFooter
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={10}
+              totalItems={filtered.length}
+              itemLabel="pengguna"
+              onPageChange={setCurrentPage}
+            />
           </div>
         </div>
       </div>

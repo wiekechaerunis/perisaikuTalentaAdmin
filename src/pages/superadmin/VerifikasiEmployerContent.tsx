@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Search, ListFilter, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Search, ListFilter, X } from "lucide-react";
 import { SuperadminTopBar } from "../../layouts/SuperadminLayout";
+import { PaginationFooter } from "../../components/shared/Pagination";
+import { usePagination } from "../../lib/pagination";
 import { EmployerFilterPanel } from "../../components/superadmin/EmployerFilterPanel";
 import { EmployerRowActions } from "../../components/superadmin/EmployerRowActions";
 import { ApproveEmployerModal } from "../../components/superadmin/ApproveEmployerModal";
@@ -47,6 +49,8 @@ export function VerifikasiEmployerContent() {
     && (!activeFilters.industri || row.industri === activeFilters.industri)
     && (!activeFilters.kota || row.kota === activeFilters.kota)
   );
+
+  const { currentPage, setCurrentPage, totalPages, pageItems } = usePagination(filtered, 10);
 
   const activeChips: { fieldKey: keyof EmployerFilterValues; label: string; value: string }[] = [
     ...(activeFilters.status ? [{ fieldKey: "status" as const, label: "Status", value: EMPLOYER_STATUS_STYLE[activeFilters.status].label }] : []),
@@ -154,10 +158,10 @@ export function VerifikasiEmployerContent() {
                 </div>
 
                 {/* Rows */}
-                {filtered.map((row, i) => {
+                {pageItems.map((row, i) => {
                   const statusStyle = EMPLOYER_STATUS_STYLE[row.status];
                   return (
-                    <div key={row.id} className={`grid ${EMPLOYER_TABLE_GRID_COLS} items-center gap-6 p-4 hover:bg-[#f7faff] transition-colors ${i < filtered.length - 1 ? "border-b border-border-lighter" : ""}`}>
+                    <div key={row.id} className={`grid ${EMPLOYER_TABLE_GRID_COLS} items-center gap-6 p-4 hover:bg-[#f7faff] transition-colors ${i < pageItems.length - 1 ? "border-b border-border-lighter" : ""}`}>
                       <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.nama}</p>
                       <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.industri}</p>
                       <p className="min-w-0 truncate text-text-darker text-sm font-medium" style={{ fontFamily: "var(--font-body)" }}>{row.kota}</p>
@@ -182,30 +186,14 @@ export function VerifikasiEmployerContent() {
             )}
 
             {/* Pagination */}
-            <div className="flex items-center justify-between p-6">
-              <p className="text-text-muted text-sm" style={{ fontFamily: "var(--font-body)" }}>
-                Menampilkan {filtered.length} dari {rows.length} employer
-              </p>
-              <div className="flex items-center gap-6">
-                <button className="size-8 rounded-full border border-border-lighter flex items-center justify-center hover:bg-gray-50">
-                  <ChevronLeft size={14} className="text-icon-default" />
-                </button>
-                <div className="flex gap-2">
-                  {[1].map(n => (
-                    <button
-                      key={n}
-                      className="size-8 rounded-md flex items-center justify-center text-sm font-semibold bg-brand-primary text-white"
-                      style={{ fontFamily: "var(--font-body)" }}
-                    >
-                      {n}
-                    </button>
-                  ))}
-                </div>
-                <button className="size-8 rounded-full border border-border-lighter flex items-center justify-center hover:bg-gray-50">
-                  <ChevronRight size={14} className="text-icon-default" />
-                </button>
-              </div>
-            </div>
+            <PaginationFooter
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={10}
+              totalItems={filtered.length}
+              itemLabel="employer"
+              onPageChange={setCurrentPage}
+            />
           </div>
         </div>
       </div>

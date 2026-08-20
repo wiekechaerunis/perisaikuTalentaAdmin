@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, ListFilter, X, MapPin, Building2, Wallet, Bookmark, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ListFilter, X, MapPin, Building2, Wallet, Bookmark, Eye } from "lucide-react";
 import Lottie from "lottie-react";
 import searchingLottie from "../../assets/lottie/data-center-search.json";
 import imgCandidate from "../../imports/Frame626639/fb0866f26f42d40c2ae9ca60a1f6f85a45c71cad.png";
 import imgSavedCandidatesEmpty from "../../assets/illustrations/saved-candidates-empty.png";
 import { NotificationBell } from "../../components/shared/NotificationBell";
 import { TopBarUserMenu } from "../../components/shared/TopBarUserMenu";
+import { PaginationFooter } from "../../components/shared/Pagination";
+import { usePagination } from "../../lib/pagination";
 import { StatusToastStack, StatusToastItem } from "../../components/shared/StatusToast";
 import { StarRatingIcon, InviteCandidateIcon } from "../../components/shared/Icons";
 import { CandidateProfileModal, searchCandidateToProfileData } from "../../components/shared/CandidateProfileModal";
@@ -193,6 +195,8 @@ export function CariKandidatContent() {
     if (activeFilters.pendidikan.length && !activeFilters.pendidikan.some(value => c.pendidikanList.some(item => item.jenjang.includes(value)))) return false;
     return matchesAdvancedFilters(c, activeFilters);
   });
+
+  const { currentPage, setCurrentPage, totalPages, pageItems } = usePagination(searchResults, 10);
 
   useEffect(() => {
     if (!filterOpen) return;
@@ -392,7 +396,7 @@ export function CariKandidatContent() {
 
                   {/* Rows */}
                   <div className="flex flex-col gap-3 p-3 bg-white">
-                    {searchResults.map((c) => (
+                    {pageItems.map((c) => (
                       <CandidateResultRow
                         key={c.id}
                         c={c}
@@ -406,38 +410,14 @@ export function CariKandidatContent() {
                 </div>
 
                 {/* Pagination */}
-                <div className="flex items-center justify-between px-2">
-                  <p className="text-text-muted text-sm" style={{ fontFamily: "var(--font-body)" }}>
-                    Menampilkan {searchResults.length} dari 20 kandidat
-                  </p>
-                  <div className="flex items-center gap-6">
-                    <div className="flex gap-2">
-                      {[0, 1].map((i) => (
-                        <button key={i} className="size-8 rounded-full border border-border-lighter flex items-center justify-center hover:bg-gray-50">
-                          <ChevronLeft size={14} className="text-icon-default" />
-                        </button>
-                      ))}
-                    </div>
-                    <div className="flex gap-2">
-                      {[1, 2, 3].map((n) => (
-                        <button
-                          key={n}
-                          className={`size-8 rounded-md flex items-center justify-center text-sm font-semibold transition-colors ${n === 1 ? "bg-brand-primary text-white" : "border border-border-lighter text-text-default hover:bg-gray-50"}`}
-                          style={{ fontFamily: "var(--font-body)" }}
-                        >
-                          {n}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="flex gap-2">
-                      {[0, 1].map((i) => (
-                        <button key={i} className="size-8 rounded-full border border-border-lighter flex items-center justify-center hover:bg-gray-50">
-                          <ChevronRight size={14} className="text-icon-default" />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                <PaginationFooter
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  pageSize={10}
+                  totalItems={searchResults.length}
+                  itemLabel="kandidat"
+                  onPageChange={setCurrentPage}
+                />
               </div>
             )}
           </div>

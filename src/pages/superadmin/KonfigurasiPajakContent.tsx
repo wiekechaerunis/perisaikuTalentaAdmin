@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
-import { Search, ListFilter, ChevronLeft, ChevronRight, Eye, Pencil, Calculator } from "lucide-react";
+import { Search, ListFilter, Eye, Pencil, Calculator } from "lucide-react";
 import { SuperadminTopBar } from "../../layouts/SuperadminLayout";
 import { EmptyState } from "../../components/shared/EmptyState";
+import { PaginationFooter } from "../../components/shared/Pagination";
+import { usePagination } from "../../lib/pagination";
 import { StatusToastStack, StatusToastItem } from "../../components/shared/StatusToast";
 import { DeactivateConfigModal } from "../../components/superadmin/DeactivateConfigModal";
 import { ActivateConfigModal } from "../../components/superadmin/ActivateConfigModal";
@@ -78,6 +80,7 @@ export function KonfigurasiPajakContent() {
   }, [toastFromNav]);
 
   const filtered = rows.filter(row => row.nama.toLowerCase().includes(search.toLowerCase()));
+  const { currentPage, setCurrentPage, totalPages, pageItems } = usePagination(filtered, 10);
 
   const applyToggle = (row: TaxConfigRow) => {
     const nextActive = !row.aktif;
@@ -149,10 +152,10 @@ export function KonfigurasiPajakContent() {
                 </div>
 
                 {/* Rows */}
-                {filtered.map((row, i) => (
+                {pageItems.map((row, i) => (
                   <div
                     key={row.id}
-                    className={`grid ${TABLE_GRID_COLS} items-center gap-3 p-4 hover:bg-[#f7faff] transition-colors ${i < filtered.length - 1 ? "border-b border-border-lighter" : ""}`}
+                    className={`grid ${TABLE_GRID_COLS} items-center gap-3 p-4 hover:bg-[#f7faff] transition-colors ${i < pageItems.length - 1 ? "border-b border-border-lighter" : ""}`}
                   >
                     <p className="min-w-0 truncate text-text-darker text-sm font-semibold" style={{ fontFamily: "var(--font-heading)" }}>{row.nama}</p>
                     <p className="min-w-0 truncate text-text-darker text-sm" style={{ fontFamily: "var(--font-body)" }}>{row.kategori}</p>
@@ -197,22 +200,14 @@ export function KonfigurasiPajakContent() {
             )}
 
             {/* Pagination */}
-            <div className="flex items-center justify-between p-6">
-              <p className="text-text-muted text-sm" style={{ fontFamily: "var(--font-body)" }}>
-                Menampilkan {filtered.length} dari {rows.length} konfigurasi
-              </p>
-              <div className="flex items-center gap-6">
-                <button className="size-8 rounded-full border border-border-lighter flex items-center justify-center hover:bg-gray-50">
-                  <ChevronLeft size={14} className="text-icon-default" />
-                </button>
-                <div className="flex gap-2">
-                  <button className="size-8 rounded-md flex items-center justify-center text-sm font-semibold bg-brand-primary text-white" style={{ fontFamily: "var(--font-body)" }}>1</button>
-                </div>
-                <button className="size-8 rounded-full border border-border-lighter flex items-center justify-center hover:bg-gray-50">
-                  <ChevronRight size={14} className="text-icon-default" />
-                </button>
-              </div>
-            </div>
+            <PaginationFooter
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={10}
+              totalItems={filtered.length}
+              itemLabel="konfigurasi"
+              onPageChange={setCurrentPage}
+            />
           </div>
         </div>
       </div>

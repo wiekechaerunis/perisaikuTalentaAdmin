@@ -2,9 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { Search, ListFilter, Download, X, MapPin, Building2, Calendar, Megaphone } from "lucide-react";
 import { format } from "date-fns";
-import svgLowonganPaths from "../../imports/LowonganPageJobList/svg-we7j378d6k";
 import { NotificationBell } from "../../components/shared/NotificationBell";
 import { TopBarUserMenu } from "../../components/shared/TopBarUserMenu";
+import { PaginationFooter } from "../../components/shared/Pagination";
+import { usePagination } from "../../lib/pagination";
 import { ExportApplicantsPanel, ExportApplicantFilters } from "../../components/lowongan/ExportApplicantsPanel";
 import { FilterValues, EMPTY_FILTERS } from "../../components/lowongan/FilterModal";
 import { LowonganActionIcons } from "../../components/lowongan/LowonganActionIcons";
@@ -119,6 +120,8 @@ export function LowonganContent() {
     const matchMode = activeFilters.modeKerja.length === 0 || activeFilters.modeKerja.includes(j.setting);
     return matchSearch && matchStatus && matchKategori && matchLokasi && matchMode;
   });
+
+  const { currentPage, setCurrentPage, totalPages, pageItems } = usePagination(filtered, 10);
 
   return (
     <div className="flex-1 min-w-0 h-full overflow-y-auto bg-surface">
@@ -270,7 +273,7 @@ export function LowonganContent() {
               </div>
 
               {/* Rows */}
-              {filtered.map((job) => {
+              {pageItems.map((job) => {
                 const badge = jobStatusStyle[job.status];
                 const aging = job.status === "Diterbitkan" ? getJobAging(job.dibuat) : null;
                 const statPills: { value: number | null; label: string; bg: string; stage: PipelineStage }[] = [
@@ -403,47 +406,14 @@ export function LowonganContent() {
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between p-6">
-              <p className="text-text-muted text-sm" style={{ fontFamily: "var(--font-body)" }}>
-                Menampilkan {filtered.length} dari {rows.length} lowongan
-              </p>
-              <div className="flex items-center gap-6">
-                {/* Prev chevrons */}
-                <div className="flex gap-2">
-                  {[svgLowonganPaths.p17a2ab00, svgLowonganPaths.p1a9b5e00].map((_, i) => (
-                    <button key={i} className="size-8 rounded-full border border-border-lighter flex items-center justify-center hover:bg-gray-50">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path clipRule="evenodd" d={svgLowonganPaths.p17a2ab00} fill="#606268" fillRule="evenodd" />
-                        <path clipRule="evenodd" d={svgLowonganPaths.p1a9b5e00} fill="#606268" fillRule="evenodd" />
-                      </svg>
-                    </button>
-                  ))}
-                </div>
-                {/* Page numbers */}
-                <div className="flex gap-2">
-                  {[1, 2, 3].map((n) => (
-                    <button
-                      key={n}
-                      className={`size-8 rounded-md flex items-center justify-center text-sm font-semibold transition-colors ${n === 1 ? "bg-brand-primary text-white" : "border border-border-lighter text-text-default hover:bg-gray-50"}`}
-                      style={{ fontFamily: "var(--font-body)" }}
-                    >
-                      {n}
-                    </button>
-                  ))}
-                </div>
-                {/* Next chevrons */}
-                <div className="flex gap-2">
-                  {[0, 1].map((i) => (
-                    <button key={i} className="size-8 rounded-full border border-border-lighter flex items-center justify-center hover:bg-gray-50">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="rotate-180">
-                        <path clipRule="evenodd" d={svgLowonganPaths.p17a2ab00} fill="#606268" fillRule="evenodd" />
-                        <path clipRule="evenodd" d={svgLowonganPaths.p1a9b5e00} fill="#606268" fillRule="evenodd" />
-                      </svg>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <PaginationFooter
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={10}
+              totalItems={filtered.length}
+              itemLabel="lowongan"
+              onPageChange={setCurrentPage}
+            />
           </div>
         </div>
       </div>
