@@ -5,12 +5,14 @@ import { NotificationBell } from "../components/shared/NotificationBell";
 import { TopBarUserMenu } from "../components/shared/TopBarUserMenu";
 import { StatusToastStack, StatusToastItem } from "../components/shared/StatusToast";
 import { PROFILE_PAGE_HEADERS, PROFILE_SUBPAGE_HEADERS, ProfileSharedState, COMPANY_ABOUT_PARAGRAPHS } from "../mocks/profile";
+import { SUBSCRIPTION_TIER_ROWS, SubscriptionTierRow, CURRENT_EMPLOYER_SUBSCRIPTION } from "../mocks/subscription";
 import imgAvatar from "../imports/LowonganPageJobList/c6659080845fc664635625ec6b1f2bd6fc3a8f49.png";
 
 export function ProfileLayout() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const subpageHeader = PROFILE_SUBPAGE_HEADERS[pathname];
+  const subpageHeader = PROFILE_SUBPAGE_HEADERS[pathname]
+    ?? (pathname.startsWith("/profile/billing/checkout/") ? { title: "Checkout", description: "Selesaikan pembayaran untuk mengaktifkan paket", back: "/profile/billing/plans" } : undefined);
   const header = PROFILE_PAGE_HEADERS[pathname] ?? PROFILE_PAGE_HEADERS["/profile"];
 
   const [name, setName] = useState("Budi Santoso");
@@ -29,6 +31,9 @@ export function ProfileLayout() {
   const [companyOfficeCity, setCompanyOfficeCity] = useState("");
   const [companyDescription, setCompanyDescription] = useState(COMPANY_ABOUT_PARAGRAPHS.join("\n\n"));
   const [companyPhotos, setCompanyPhotos] = useState<string[]>([]);
+  const [activeTier, setActiveTier] = useState<SubscriptionTierRow>(
+    SUBSCRIPTION_TIER_ROWS.find(t => t.id === CURRENT_EMPLOYER_SUBSCRIPTION.tierId) ?? SUBSCRIPTION_TIER_ROWS[0]
+  );
 
   const [toasts, setToasts] = useState<StatusToastItem[]>([]);
   const pushToast = (message: string) => {
@@ -46,6 +51,7 @@ export function ProfileLayout() {
     companySize, setCompanySize, companyAddress, setCompanyAddress, companyWebsite, setCompanyWebsite,
     companyLogoSrc, setCompanyLogoSrc, companyOfficeCity, setCompanyOfficeCity,
     companyDescription, setCompanyDescription, companyPhotos, setCompanyPhotos,
+    activeTier, setActiveTier,
     pushToast, setHeaderActions,
   };
 

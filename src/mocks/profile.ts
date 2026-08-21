@@ -1,4 +1,5 @@
 import React from "react";
+import { SubscriptionTierRow } from "./subscription";
 
 export const PROFILE_PAGE_HEADERS: Record<string, { title: string; description: string }> = {
   "/profile":              { title: "Profil Saya",           description: "Kelola profil, perusahaan, dan preferensi akun Anda" },
@@ -24,6 +25,7 @@ export interface ProfileSharedState {
   companyOfficeCity: string; setCompanyOfficeCity: (v: string) => void;
   companyDescription: string; setCompanyDescription: (v: string) => void;
   companyPhotos: string[]; setCompanyPhotos: (v: string[]) => void;
+  activeTier: SubscriptionTierRow; setActiveTier: (v: SubscriptionTierRow) => void;
   pushToast: (message: string) => void;
   setHeaderActions: (v: React.ReactNode) => void;
 }
@@ -32,6 +34,7 @@ export const PROFILE_SUBPAGE_HEADERS: Record<string, { title: string; descriptio
   "/profile/edit":             { title: "Edit Profil Saya", back: "/profile" },
   "/profile/change-password":  { title: "Ganti Kata Sandi", description: "Kelola profil, perusahaan, dan preferensi akun Anda", back: "/profile" },
   "/profile/company/edit":     { title: "Edit Profil Perusahaan", description: "Kelola profil, perusahaan, dan preferensi akun Anda", back: "/profile/company" },
+  "/profile/billing/plans":    { title: "Pilih Paket Langganan", description: "Bandingkan paket dan pilih yang sesuai kebutuhan rekrutmen Anda", back: "/profile/billing" },
 };
 
 export const COMPANY_ABOUT_PARAGRAPHS = [

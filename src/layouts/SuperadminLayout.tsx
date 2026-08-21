@@ -40,11 +40,32 @@ function KonfigurasiPajakIcon({ size = 20, className = "" }: { size?: number; cl
   );
 }
 
+function KonfigurasiLanggananIcon({ size = 20, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" className={className}>
+      <path d="M2.5 5.83333C2.5 4.54467 3.54467 3.5 4.83333 3.5H15.1667C16.4553 3.5 17.5 4.54467 17.5 5.83333V14.1667C17.5 15.4553 16.4553 16.5 15.1667 16.5H4.83333C3.54467 16.5 2.5 15.4553 2.5 14.1667V5.83333Z" stroke="currentColor" strokeWidth="2" />
+      <path d="M2.5 8.16667H17.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M5.83334 12H8.33334" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function TransaksiIcon({ size = 20, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" className={className}>
+      <path d="M3.33333 5.83333C3.33333 4.54467 4.378 3.5 5.66667 3.5H14.3333C15.622 3.5 16.6667 4.54467 16.6667 5.83333V16.5L14.1667 15L11.6667 16.5L10 15L8.33333 16.5L5.83333 15L3.33333 16.5V5.83333Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M6.66667 8.16667H13.3333M6.66667 11H11.6667" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 const SUPERADMIN_NAV = [
-  { path: "/superadmin/verifikasi-employer", label: "Verifikasi Employer", icon: VerifikasiEmployerIcon },
-  { path: "/superadmin/manajemen-pengguna",  label: "Manjemen Pengguna",   icon: ManajemenPenggunaIcon },
-  { path: "/superadmin/analitik-platform",   label: "Analitik Platform",   icon: AnalitikPlatformIcon },
-  { path: "/superadmin/konfigurasi-pajak",   label: "Konfigurasi Pajak",   icon: KonfigurasiPajakIcon },
+  { path: "/superadmin/verifikasi-employer",   label: "Verifikasi Employer",   icon: VerifikasiEmployerIcon },
+  { path: "/superadmin/manajemen-pengguna",    label: "Manjemen Pengguna",     icon: ManajemenPenggunaIcon },
+  { path: "/superadmin/analitik-platform",     label: "Analitik Platform",     icon: AnalitikPlatformIcon },
+  { path: "/superadmin/konfigurasi-pajak",     label: "Konfigurasi Pajak",     icon: KonfigurasiPajakIcon },
+  { path: "/superadmin/konfigurasi-langganan", label: "Konfigurasi Langganan", icon: KonfigurasiLanggananIcon },
+  { path: "/superadmin/transaksi",             label: "Transaksi",             icon: TransaksiIcon },
 ];
 
 function SuperadminSidebar() {

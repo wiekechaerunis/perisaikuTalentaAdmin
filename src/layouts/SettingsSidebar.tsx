@@ -44,7 +44,8 @@ export function SettingsSidebar() {
             {group.items.map(item => {
               const isActive = pathname === item.path
                 || (item.path === "/profile" && (pathname === "/profile/edit" || pathname === "/profile/change-password"))
-                || (item.path === "/profile/company" && pathname === "/profile/company/edit");
+                || (item.path === "/profile/company" && pathname === "/profile/company/edit")
+                || (item.path === "/profile/billing" && pathname.startsWith("/profile/billing/"));
               const Icon = item.icon;
               return (
                 <button

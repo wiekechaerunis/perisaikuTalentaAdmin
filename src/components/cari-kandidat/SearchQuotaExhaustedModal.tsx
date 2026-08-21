@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import Lottie from "lottie-react";
 import quotaExhaustedLottie from "../../assets/lottie/career.json";
 
-export function SearchQuotaExhaustedModal({ onClose }: { onClose: () => void }) {
+export function SearchQuotaExhaustedModal({ onClose, onUpgrade }: { onClose: () => void; onUpgrade: () => void }) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -23,7 +23,7 @@ export function SearchQuotaExhaustedModal({ onClose }: { onClose: () => void }) 
         <p className="mx-auto mt-3 max-w-[340px] text-[14px] leading-6 text-text-muted" style={{ fontFamily: "var(--font-body)" }}>
           Hasil kandidat tetap tersedia, tetapi detailnya dikunci. Tambah kuota Talent Search untuk melanjutkan pencarian dan melihat profil kandidat.
         </p>
-        <button type="button" onClick={onClose} className="mt-6 h-11 w-full rounded-full bg-brand-primary px-5 text-[14px] font-bold text-white transition-colors hover:bg-brand-primary-hover" style={{ fontFamily: "var(--font-body)" }}>Lihat Paket Berlangganan</button>
+        <button type="button" onClick={onUpgrade} className="mt-6 h-11 w-full rounded-full bg-brand-primary px-5 text-[14px] font-bold text-white transition-colors hover:bg-brand-primary-hover" style={{ fontFamily: "var(--font-body)" }}>Lihat Paket Berlangganan</button>
         <button type="button" onClick={onClose} className="mt-3 text-[13px] font-semibold text-text-muted hover:text-text-default">Nanti saja</button>
       </div>
     </div>

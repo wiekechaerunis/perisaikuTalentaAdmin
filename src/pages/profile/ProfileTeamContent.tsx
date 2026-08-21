@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useOutletContext } from "react-router";
+import { useOutletContext, useNavigate } from "react-router";
 import { Plus, X, Send, Trash2 } from "lucide-react";
 import Lottie from "lottie-react";
 import emailInvitationSuccessLottie from "../../assets/lottie/email-invitation-success.json";
@@ -14,8 +14,10 @@ function LockIcon({ size = 16, className = "" }: { size?: number; className?: st
 }
 
 export function ProfileTeamContent() {
-  const { pushToast, setHeaderActions } = useOutletContext<ProfileSharedState>();
+  const navigate = useNavigate();
+  const { pushToast, setHeaderActions, activeTier } = useOutletContext<ProfileSharedState>();
   const [members, setMembers] = useState(TEAM_MEMBERS);
+  const adminQuota = activeTier.kuotaAdmin;
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviteSuccessOpen, setInviteSuccessOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
@@ -33,17 +35,17 @@ export function ProfileTeamContent() {
 
   useEffect(() => {
     setHeaderActions(
-      <button onClick={() => setInviteOpen(true)} disabled={activeAdmins >= 5} className="flex h-11 items-center gap-2 rounded-full bg-brand-primary px-5 text-[14px] font-bold text-white hover:bg-brand-primary-hover disabled:opacity-40" style={{ fontFamily: "var(--font-body)" }}><Plus size={17} />Undang Anggota</button>
+      <button onClick={() => setInviteOpen(true)} disabled={activeAdmins >= adminQuota} className="flex h-11 items-center gap-2 rounded-full bg-brand-primary px-5 text-[14px] font-bold text-white hover:bg-brand-primary-hover disabled:opacity-40" style={{ fontFamily: "var(--font-body)" }}><Plus size={17} />Undang Anggota</button>
     );
     return () => setHeaderActions(null);
-  }, [activeAdmins]);
+  }, [activeAdmins, adminQuota]);
 
   return (
     <div className="flex flex-col gap-6">
 
       <div className="flex items-center justify-between gap-6 rounded-2xl border border-[#dce4f0] bg-white px-6 py-5">
-        <div className="w-full max-w-[380px]"><p className="text-[14px] font-bold text-text-default" style={{ fontFamily: "var(--font-body)" }}>{activeAdmins} dari 5 admin terpakai</p><div className="mt-2 h-2 overflow-hidden rounded-full bg-[#e2e8f0]"><div className="h-full rounded-full bg-brand-primary transition-all" style={{ width: `${(activeAdmins / 5) * 100}%` }} /></div><p className="mt-3 text-[13px] text-text-lighter">Upgrade paket untuk menambah anggota tim.</p></div>
-        <button className="h-10 rounded-full border-[1.5px] border-brand-primary px-5 text-[13px] font-bold text-brand-primary hover:bg-[#eef3ff]">Lihat Paket Berlangganan</button>
+        <div className="w-full max-w-[380px]"><p className="text-[14px] font-bold text-text-default" style={{ fontFamily: "var(--font-body)" }}>{activeAdmins} dari {adminQuota} admin terpakai</p><div className="mt-2 h-2 overflow-hidden rounded-full bg-[#e2e8f0]"><div className="h-full rounded-full bg-brand-primary transition-all" style={{ width: `${(activeAdmins / adminQuota) * 100}%` }} /></div><p className="mt-3 text-[13px] text-text-lighter">Upgrade paket untuk menambah anggota tim.</p></div>
+        <button onClick={() => navigate("/profile/billing/plans")} className="h-10 rounded-full border-[1.5px] border-brand-primary px-5 text-[13px] font-bold text-brand-primary hover:bg-[#eef3ff]">Lihat Paket Berlangganan</button>
       </div>
 
       <div className="overflow-visible rounded-2xl border border-[#dce4f0] bg-white">

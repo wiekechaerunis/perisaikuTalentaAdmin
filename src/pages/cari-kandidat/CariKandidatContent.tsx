@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router";
 import { Search, ListFilter, X, MapPin, Building2, Wallet, Bookmark, Eye } from "lucide-react";
 import Lottie from "lottie-react";
 import searchingLottie from "../../assets/lottie/data-center-search.json";
@@ -99,6 +100,7 @@ function CandidateResultRow({ c, isSaved, onToggleSave, onView, onInvite }: { c:
 }
 
 export function CariKandidatContent() {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<"cari" | "disimpan">("cari");
   const [search, setSearch] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
@@ -362,7 +364,7 @@ export function CariKandidatContent() {
               <p className={`text-[12px] ${quotaExhausted ? "text-[#c93f2a]" : "text-text-darker"}`} style={{ fontFamily: "var(--font-body)" }}>
                 Kuota pencarian: <span className="font-bold">{searchQuotaUsed}/{SEARCH_QUOTA_LIMIT}</span> terpakai.{quotaExhausted ? " Kuota pencarian Anda sudah habis." : ""} Upgrade paket Talent Search untuk kuota lebih banyak.
               </p>
-              <button className="text-[14px] font-bold text-brand-primary hover:underline shrink-0" style={{ fontFamily: "var(--font-body)" }}>Lihat Paket Berlangganan</button>
+              <button onClick={() => navigate("/profile/billing/plans")} className="text-[14px] font-bold text-brand-primary hover:underline shrink-0" style={{ fontFamily: "var(--font-body)" }}>Lihat Paket Berlangganan</button>
             </div>
 
             {searching && (
@@ -556,7 +558,7 @@ export function CariKandidatContent() {
         />
       )}
 
-      {showQuotaModal && <SearchQuotaExhaustedModal onClose={() => setShowQuotaModal(false)} />}
+      {showQuotaModal && <SearchQuotaExhaustedModal onClose={() => setShowQuotaModal(false)} onUpgrade={() => navigate("/profile/billing/plans")} />}
 
       <StatusToastStack toasts={actionToasts} onDismiss={dismissActionToast} />
     </div>
